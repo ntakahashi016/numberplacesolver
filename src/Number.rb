@@ -1,4 +1,4 @@
-# coding: cp932
+# coding: utf-8
 class Number
   @@min_vlaue = 1
   @@max_value = 9

@@ -1,4 +1,4 @@
-# coding: cp932
+# coding: utf-8
 class SolveUnit
 
   def intialize(unfixed_numbers)
@@ -6,28 +6,28 @@ class SolveUnit
     @unfixed_numbers = unfixed_numbers
   end
 
-  # QÆ‚µ‚Ä‚¢‚éCell‚ÉXV‚ª‚ ‚Á‚½‚±‚Æ‚Ì’Ê’m
+  # å‚ç…§ã—ã¦ã„ã‚‹Cellã«æ›´æ–°ãŒã‚ã£ãŸã“ã¨ã®é€šçŸ¥
   def notify()
-    # ‚·‚Å‚É‚·‚×‚Ä‚Ì”š‚ªŠm’è‚µ‚Ä‚¢‚éê‡–³‹‚·‚é
+    # ã™ã§ã«ã™ã¹ã¦ã®æ•°å­—ãŒç¢ºå®šã—ã¦ã„ã‚‹å ´åˆç„¡è¦–ã™ã‚‹
     if !self.is_fixed?
-      # s6tep 1 Šm’è‚µ‚Ä‚¢‚é”š‚ğŠm”F‚µ@unfixed_numbers‚ğXV‚·‚é
-      fixed_numbers = [] # ¡‰ñV‚½‚ÉŠm’è‚µ‚½”š‚ğ‹L˜^‚µ‚Ä‚¨‚­
+      # s6tep 1 ç¢ºå®šã—ã¦ã„ã‚‹æ•°å­—ã‚’ç¢ºèªã—@unfixed_numbersã‚’æ›´æ–°ã™ã‚‹
+      fixed_numbers = [] # ä»Šå›æ–°ãŸã«ç¢ºå®šã—ãŸæ•°å­—ã‚’è¨˜éŒ²ã—ã¦ãŠã
       @cells.each do |cell|
         if !cell.is_blank?
-          # ”š‚ªŠm’è‚µ‚Ä‚¢‚éCell‚Ì‚İ‘ÎÛ‚Æ‚·‚é
+          # æ•°å­—ãŒç¢ºå®šã—ã¦ã„ã‚‹Cellã®ã¿å¯¾è±¡ã¨ã™ã‚‹
           number = cell.number
           if @unfixed_numbers.include?(number)
-            # –¢Šm’è‚¾‚Á‚½”š‚ªŠm’è‚µ‚Ä‚¢‚½ê‡
+            # æœªç¢ºå®šã ã£ãŸæ•°å­—ãŒç¢ºå®šã—ã¦ã„ãŸå ´åˆ
             @unfixed_numbers.del_number(number)
             fixed_numbers.add(number)
           end
         end
       end
-      # step 2 ‹ó”’cell‚ÌŒó•â‚©‚çŠm’è‚µ‚½”š‚ğœŠO‚·‚é
-      if fixed_numbers != [] # ¡‰ñV‚½‚ÉŠm’è‚µ‚½”š‚ª‚È‚©‚Á‚½‚ç–³‹‚·‚é
+      # step 2 ç©ºç™½cellã®å€™è£œã‹ã‚‰ç¢ºå®šã—ãŸæ•°å­—ã‚’é™¤å¤–ã™ã‚‹
+      if fixed_numbers != [] # ä»Šå›æ–°ãŸã«ç¢ºå®šã—ãŸæ•°å­—ãŒãªã‹ã£ãŸã‚‰ç„¡è¦–ã™ã‚‹
         @cells.each do |cell|
           if cell.is_blank?
-            # ”š‚ªŠm’è‚µ‚Ä‚¢‚È‚¢Cell‚Ì‚İ‘ÎÛ‚Æ‚·‚é
+            # æ•°å­—ãŒç¢ºå®šã—ã¦ã„ãªã„Cellã®ã¿å¯¾è±¡ã¨ã™ã‚‹
             fixed_numbers.each do |number|
               cell.del_candidate(number)
             end

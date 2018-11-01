@@ -1,6 +1,7 @@
+# coding: utf-8
 class Cell
 
-  def initialize(number)
+  def initialize(number=nil)
     @number = number
     @observers = []
   end
@@ -13,11 +14,19 @@ class Cell
   end
 
   def add_observer(observer)
+    unless observer.class == SolveUnit
+      raise e
+    end
     @observers.add(observer)
   end
 
   def del_observer(observer)
-    @observres.del(observer)
+    if @observers.include?(observer)
+      @observres.del(observer)
+    else
+      #エラー処理が必要か？
+      raise e
+    end
   end
 
   def notify_observer()
