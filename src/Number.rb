@@ -4,19 +4,20 @@ class Number
   @@max_value = 9
   attr_reader:value
 
-  def initialize()
-    @value = nil
+  def initialize(value)
+    # selfのvalue=を使用する
+    self.value = value
   end
 
   def self.set_min_value(value)
     if value < @@max_value
-      @@min_value = vslue
+      @@min_value = value
     else
       raise "Class:#{self.class.name} cannot set value lager than max_value to min_value"
     end
   end
 
-  def self.set_max_value(valuea)
+  def self.set_max_value(value)
     if @@min_value < value
       @@max_value = value
     else
@@ -25,9 +26,8 @@ class Number
   end
 
   def value=(value)
-    if (@@min_value <= value) and (value <= @@max_value)do
-         @value = value
-       end
+    if (@@min_value..@@max_value).include?(value)
+      @value = value
     else
       raise "Class:#{self.class.name} RangeError"
     end

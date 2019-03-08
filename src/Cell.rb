@@ -2,12 +2,14 @@
 class Cell
 
   def initialize(number=nil)
+    # Number must has value
+    # blank Cell has nil
     @number = number
     @observers = []
   end
 
   def is_blank?()
-    if @number.value == nil
+    if @number == nil
       true
     end
     false
@@ -22,16 +24,24 @@ class Cell
 
   def del_observer(observer)
     if @observers.include?(observer)
-      @observres.del(observer)
+      @observres.delete(observer)
     else
       #エラー処理が必要か？
       raise e
     end
   end
 
-  def notify_observer()
+  def notify_observers()
     @obsevers.each do |observer|
       observer.notify
+    end
+  end
+
+  def number=(number)
+    begin
+      @number=number
+      self.notify_observers
+    rescue
     end
   end
 end
