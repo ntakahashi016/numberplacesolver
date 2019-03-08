@@ -12,7 +12,7 @@ class Number
     if value < @@max_value
       @@min_value = vslue
     else
-      raise "Class:Number cannot set value lager than max_value to min_value"
+      raise "Class:#{self.class.name} cannot set value lager than max_value to min_value"
     end
   end
 
@@ -20,7 +20,7 @@ class Number
     if @@min_value < value
       @@max_value = value
     else
-      raise "Class:Number cannot set value less than min_value to max_value"
+      raise "Class:#{self.class.name} cannot set value less than min_value to max_value"
     end
   end
 
@@ -29,7 +29,7 @@ class Number
          @value = value
        end
     else
-      raise "Class:Number RangeError"
+      raise "Class:#{self.class.name} RangeError"
     end
   end
 
