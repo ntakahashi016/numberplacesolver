@@ -1,47 +1,61 @@
 # coding: utf-8
+
+require './Block'
+require './Number'
+
 class Cell
 
-  def initialize(number=nil)
-    # Number must has value
-    # blank Cell has nil
-    @number = number
-    @observers = []
+  def initialize(x,y)
+    @x = x          # X座標
+    @y = y          # Y座標
+    @number = nil   # 数字
+    @observers = [] # 変更通知対象
   end
 
-  def is_blank?()
-    if @number == nil
-      true
-    end
-    false
-  end
-
+  # add_observer
+  # observer(Blockオブジェクト)を追加する
   def add_observer(observer)
-    unless observer.class == SolveUnit
-      raise e
+    unless observer.class == Block
+      raise
     end
-    @observers.add(observer)
+    @observers.push(observer)
   end
 
-  def del_observer(observer)
-    if @observers.include?(observer)
-      @observres.delete(observer)
-    else
-      #エラー処理が必要か？
-      raise e
-    end
-  end
-
+  # notify_observers
+  # observerに変更があったことを通知する
   def notify_observers()
-    @obsevers.each do |observer|
-      observer.notify
+    @observers.each do |observer|
+      begin
+        observer.notify
+      rescue => e
+        raise e
+      end
     end
   end
 
-  def number=(number)
+  # number=
+  # 数字を設定する
+  def number=(n)
     begin
-      @number=number
+      @number = Number.new(n)
       self.notify_observers
-    rescue
+    rescue RangeError => e
+      raise e
+    rescue => e
+      raise e
+    end
+  end
+
+  # number
+  # 数字を取得する
+  def number()
+    unless @number == nil
+      @number.to_i
+    else
+      nil
     end
   end
 end
+
+
+# test

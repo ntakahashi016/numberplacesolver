@@ -1,31 +1,22 @@
 # coding: utf-8
+
+require './Number'
+
+class AreadyExistsNumberError < StandardError; end
+
 class Numbers
 
   def initialize()
-    @numbers = Set.new
+    numbers = Number.available_values
+    @numbers = numbers.zip(Array.new(numbers.length){false}).to_h
   end
 
-  def add_number(number)
-    @numbers.add(number)
-  end
-
-  def del_number(number)
-    @numbers.del(number)
-  end
-
-  def [](index)
-    @number[index]
-  end
-
-  def include?(number)
-    @numbers.include?(number)
-  end
-
-  def is_blank?()
-    if @numbers.size == 0
-      true
+  def set(n)
+    if @numbers[n] == false
+      @numbers[n] = true
     else
-      false
+      raise "#{self.class.name} # #{n} is aready exists."
     end
   end
+
 end
