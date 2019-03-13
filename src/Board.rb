@@ -212,56 +212,68 @@ resume = false # 復帰フラグ
 until b.solved?
   y = idx/9 # インデックスをもとにY座標を生成
   x = idx%9 # インデックスをもとにX座標を生成
+  num = b.get_number(x,y)
   if !resume
     # 復帰でなくすでに数字が入っている場合、問題の数字であるため次のマスへすすめる
-    num = b.get_number(x,y)
     if num != nil
       idx += 1
       next
+    else
+      start = 1 # マスが空の場合は1から始める
+    end
+  else
+    # 復帰の場合、すでに入っている数字の次から始める
+    if num != nil
+      start = num + 1
+    else
+      # デバッグ用 実行時エラー
+      raise
     end
   end
-  # 復帰の場合、すでに入っている数字の次から始める
-  start = resume ? (b.get_number(x,y)+1) : 1
+  # 開始番号から使用する最大値までで、当てはまる数字が一つもないかどうかチェックする
   result = (start..9).none? do |n|
     begin
       cmd = SetCommand.new(b,x,y,n)
       cmd_stack.push(cmd)
       cmd.do
-      true
+      true # 数字が問題なくセットできた
+    rescue RangeError => e
+      # デバッグ用 Rangeエラー 使用する数字の範囲に誤りがある場合
+      raise e.message
     rescue
       cmd.undo
       cmd_stack.pop
-      false
+      false # 数字がセットできなかった＝番号の重複があった
     end
   end
   # result==trueはどの数字も当てはまらなかった場合
   if result == true
+    # 一つ前のコマンドを取り出す
     prev_cmd = cmd_stack.pop
-    # コマンド履歴の最初まで遡った＝最初のマスでどの数字も当てはまらなかった場合、失敗
     if prev_cmd == nil
-      puts "######## SOLVE FAILED"
-      break
+      # コマンド履歴の最初まで遡った＝最初のマスでどの数字も当てはまらなかった場合、失敗
+      raise
     end
-    # cmd_stack.push(prev_cmd)
     idx = (prev_cmd.y * 9) + prev_cmd.x # 前回実行したコマンドのインデックスに移動する
+    # 前回のコマンドで最大値をセットしていた場合は更にundoを実行しもう一つ前のコマンド実行時のインデックスに移動する
     if prev_cmd.number == 9
       prev_cmd.undo
       prev_cmd = cmd_stack.pop
       idx = (prev_cmd.y * 9) + prev_cmd.x
     end
-    resume = true
+    resume = true # 復帰フラグを立てる
   else
     if result == nil
-      puts "######## NIL BREAK ########"
-      break
+      # デバッグ用 resultがnilの場合＝チェック範囲の指定ミス
+      raise
     end
+    # result==falseは数字が当てはまった場合、次のマスに進む
     idx += 1
     resume = false
   end
-  # インデックスがBoardのサイズを超えた場合、解なしとして終了する
-  if idx > ((b.x_size) * (b.y_size))
-    puts "######## INDEX OVER"
-    break
+  # デバッグ用 インデックスがBoardのサイズを超える＝最後のマスに数字が入ったがresolved?==falseの場合
+  if idx > (b.x_size * b.y_size)
+    raise
   end
 end
 
