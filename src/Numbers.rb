@@ -2,8 +2,8 @@
 
 require './Number'
 
-class AreadyExistsNumberError < StandardError; end
-
+# Numbers
+# 各数字が使用されているかどうかのフラグを持つ
 class Numbers
 
   def initialize()

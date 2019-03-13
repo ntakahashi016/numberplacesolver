@@ -1,6 +1,6 @@
 # coding: utf-8
 
-require './Numbers'
+require './Number'
 require './Cell'
 
 # Class:Block
@@ -10,6 +10,10 @@ class Block
 
   def initialize()
     @cells = []
+    @numbers = {}
+    Number.available_values.each do |number|
+      @numbers[number] = false
+    end
   end
 
   # add
@@ -26,18 +30,26 @@ class Block
   # 領域内のマスに変更があった場合に、数字に重複がないか
   # チェックする
   def notify()
-    numbers = Numbers.new
+    @numbers.each do |k,v|
+      @numbers[k] = false
+    end
     @cells.each do |cell|
       if cell.number == nil
         next                    # Cellに数字(Numberオブジェクト)が登録されてなければ次へ
       else
-        begin
-          numbers.set(cell.number) # Cellの数字をNumbersに登録する
-        rescue  => e
-          raise e
+        if @numbers[cell.number] == false
+          @numbers[cell.number] = true
+        else
+          @numbers[cell.number] = false
+          raise "#{self.class.name} # #{cell.number} is aready exists."
         end
       end
     end
   end
 
+  def solved?
+    @numbers.all? do |n|
+      n[1] # flag部分
+    end
+  end
 end

@@ -37,7 +37,11 @@ class Cell
   # 数字を設定する
   def number=(n)
     begin
-      @number = Number.new(n)
+      if n == nil
+        @number = nil
+      else
+        @number = Number.new(n)
+      end
       self.notify_observers
     rescue RangeError => e
       raise e

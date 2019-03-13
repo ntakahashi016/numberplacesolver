@@ -1,9 +1,9 @@
 # coding: utf-8
 
 require './Number'
-require './Numbers'
 require './Cell'
 require './Block'
+require './Command'
 
 class Board
 
@@ -107,6 +107,10 @@ class Board
     str << "+-" * self.x_size  + "+\n"
     str
   end
+
+  def solved?
+    @blocks.all? {|block| block.solved? }
+  end
 end
 
 
@@ -114,6 +118,11 @@ end
 
 b = Board.new()
 puts b.to_s
+if b.solved?
+  puts "#### SOLVED ####"
+else
+  puts "#### NOT SOLVED ####"
+end
 
 numarr = (1..9).to_a
 for y in 0..8 do
@@ -121,11 +130,22 @@ for y in 0..8 do
     i = (x + y/3 + 0) % 9 if (y % 3) == 0
     i = (x + y/3 + 3) % 9 if (y % 3) == 1
     i = (x + y/3 + 6) % 9 if (y % 3) == 2
-    b.set_number(x,y,numarr[i])
+    begin
+      b.set_number(x,y,numarr[i])
+    rescue => e
+      puts "Error #{e.message}"
+    end
   end
+  puts b.to_s
 end
 puts "################################################################"
 puts b.to_s
+puts "################################################################"
+if b.solved?
+  puts "#### SOLVED ####"
+else
+  puts "#### NOT SOLVED ####"
+end
 puts "################################################################"
 # for x in 0..8 do
 #   for y in 0..8 do
@@ -142,4 +162,112 @@ begin
 rescue => e
   puts e.message
 end
+if b.solved?
+  puts "#### SOLVED ####"
+else
+  puts "#### NOT SOLVED ####"
+end
+puts "################################################################"
 
+b = Board.new()
+init_cmd_stack = CompositCommand.new
+init_cmd_stack.push(SetCommand.new(b,0,0,5))
+init_cmd_stack.push(SetCommand.new(b,1,0,3))
+init_cmd_stack.push(SetCommand.new(b,4,0,7))
+init_cmd_stack.push(SetCommand.new(b,0,1,6))
+init_cmd_stack.push(SetCommand.new(b,3,1,1))
+init_cmd_stack.push(SetCommand.new(b,4,1,9))
+init_cmd_stack.push(SetCommand.new(b,5,1,5))
+init_cmd_stack.push(SetCommand.new(b,1,2,9))
+init_cmd_stack.push(SetCommand.new(b,2,2,8))
+init_cmd_stack.push(SetCommand.new(b,7,2,6))
+init_cmd_stack.push(SetCommand.new(b,0,3,8))
+init_cmd_stack.push(SetCommand.new(b,4,3,6))
+init_cmd_stack.push(SetCommand.new(b,8,3,3))
+init_cmd_stack.push(SetCommand.new(b,0,4,4))
+init_cmd_stack.push(SetCommand.new(b,3,4,8))
+init_cmd_stack.push(SetCommand.new(b,5,4,3))
+init_cmd_stack.push(SetCommand.new(b,8,4,1))
+init_cmd_stack.push(SetCommand.new(b,0,5,7))
+init_cmd_stack.push(SetCommand.new(b,4,5,2))
+init_cmd_stack.push(SetCommand.new(b,8,5,6))
+init_cmd_stack.push(SetCommand.new(b,1,6,6))
+init_cmd_stack.push(SetCommand.new(b,6,6,2))
+init_cmd_stack.push(SetCommand.new(b,7,6,8))
+init_cmd_stack.push(SetCommand.new(b,3,7,4))
+init_cmd_stack.push(SetCommand.new(b,4,7,1))
+init_cmd_stack.push(SetCommand.new(b,5,7,9))
+init_cmd_stack.push(SetCommand.new(b,8,7,5))
+init_cmd_stack.push(SetCommand.new(b,4,8,8))
+init_cmd_stack.push(SetCommand.new(b,7,8,7))
+init_cmd_stack.push(SetCommand.new(b,8,8,9))
+init_cmd_stack.do
+
+puts b
+
+cmd_stack = CompositCommand.new
+idx = 0   # インデックス
+resume = false # 復帰フラグ
+
+until b.solved?
+  y = idx/9 # インデックスをもとにY座標を生成
+  x = idx%9 # インデックスをもとにX座標を生成
+  if !resume
+    # 復帰でなくすでに数字が入っている場合、問題の数字であるため次のマスへすすめる
+    num = b.get_number(x,y)
+    if num != nil
+      idx += 1
+      next
+    end
+  end
+  # 復帰の場合、すでに入っている数字の次から始める
+  start = resume ? (b.get_number(x,y)+1) : 1
+  result = (start..9).none? do |n|
+    begin
+      cmd = SetCommand.new(b,x,y,n)
+      cmd_stack.push(cmd)
+      cmd.do
+      true
+    rescue
+      cmd.undo
+      cmd_stack.pop
+      false
+    end
+  end
+  # result==trueはどの数字も当てはまらなかった場合
+  if result == true
+    prev_cmd = cmd_stack.pop
+    # コマンド履歴の最初まで遡った＝最初のマスでどの数字も当てはまらなかった場合、失敗
+    if prev_cmd == nil
+      puts "######## SOLVE FAILED"
+      break
+    end
+    # cmd_stack.push(prev_cmd)
+    idx = (prev_cmd.y * 9) + prev_cmd.x # 前回実行したコマンドのインデックスに移動する
+    if prev_cmd.number == 9
+      prev_cmd.undo
+      prev_cmd = cmd_stack.pop
+      idx = (prev_cmd.y * 9) + prev_cmd.x
+    end
+    resume = true
+  else
+    if result == nil
+      puts "######## NIL BREAK ########"
+      break
+    end
+    idx += 1
+    resume = false
+  end
+  # インデックスがBoardのサイズを超えた場合、解なしとして終了する
+  if idx > ((b.x_size) * (b.y_size))
+    puts "######## INDEX OVER"
+    break
+  end
+end
+
+puts b
+if b.solved?
+  puts "#### SOLVED ####"
+else
+  puts "#### NOT SOLVED ####"
+end
