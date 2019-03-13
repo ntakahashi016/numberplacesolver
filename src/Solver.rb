@@ -7,19 +7,9 @@ class Solver
     else
       raise "Class:#{self.class.name}:TypeError."
     end
-    @algorithm = nil
   end
 
   def solve()
-    if @algorithm!=nil
-      until @algorithm.is_finished?
-        @algorithm.do
-      end
-    end
-  end
-
-  def set_algorithm(algorithm)
-    @algorithm = algorithm
   end
 
 end
