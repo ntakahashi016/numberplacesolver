@@ -37,7 +37,7 @@ class BacktrackSolver < Solver
           start = num + 1
         else
           # デバッグ用 実行時エラー
-          raise
+          raise "Resumed. but the cell(#{x},#{y}) is set #{num}"
         end
       end
       # 開始番号から使用する最大値までで、当てはまる数字が一つもないかどうかチェックする
@@ -62,11 +62,12 @@ class BacktrackSolver < Solver
         prev_cmd = cmd_stack.pop
         if prev_cmd == nil
           # コマンド履歴の最初まで遡った＝最初のマスでどの数字も当てはまらなかった場合、失敗
-          raise
+          raise "Can't solve."
         end
         idx = (prev_cmd.y * 9) + prev_cmd.x # 前回実行したコマンドのインデックスに移動する
         # 前回のコマンドで最大値をセットしていた場合は更にundoを実行しもう一つ前のコマンド実行時のインデックスに移動する
-        if prev_cmd.number == 9
+        #### 複数回、9の復帰がかさなると9を消せない
+        while prev_cmd.number == 9 do
           prev_cmd.undo
           prev_cmd = cmd_stack.pop
           idx = (prev_cmd.y * 9) + prev_cmd.x
@@ -75,7 +76,7 @@ class BacktrackSolver < Solver
       else
         if result == nil
           # デバッグ用 resultがnilの場合＝チェック範囲の指定ミス
-          raise
+          raise "check range error"
         end
         # result==falseは数字が当てはまった場合、次のマスに進む
         idx += 1
@@ -83,7 +84,7 @@ class BacktrackSolver < Solver
       end
       # デバッグ用 インデックスがBoardのサイズを超える＝最後のマスに数字が入ったがsolved?==falseの場合
       if idx > (@board.x_size * @board.y_size)
-        raise
+        raise "reach final cell but not solved"
       end
     end
 

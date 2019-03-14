@@ -219,4 +219,44 @@ if $0 == __FILE__
     puts "#### NOT SOLVED ####"
   end
 
+  b = Board.new()
+  init_cmd_stack = CompositCommand.new
+  init_cmd_stack.push(SetCommand.new(b,0,0,3))
+  init_cmd_stack.push(SetCommand.new(b,2,0,6))
+  init_cmd_stack.push(SetCommand.new(b,4,0,8))
+  init_cmd_stack.push(SetCommand.new(b,2,1,7))
+  init_cmd_stack.push(SetCommand.new(b,8,1,6))
+  init_cmd_stack.push(SetCommand.new(b,1,2,8))
+  init_cmd_stack.push(SetCommand.new(b,3,2,7))
+  init_cmd_stack.push(SetCommand.new(b,6,2,1))
+  init_cmd_stack.push(SetCommand.new(b,0,3,1))
+  init_cmd_stack.push(SetCommand.new(b,1,3,4))
+  init_cmd_stack.push(SetCommand.new(b,7,3,5))
+  init_cmd_stack.push(SetCommand.new(b,0,4,6))
+  init_cmd_stack.push(SetCommand.new(b,5,4,5))
+  init_cmd_stack.push(SetCommand.new(b,6,4,9))
+  init_cmd_stack.push(SetCommand.new(b,8,4,2))
+  init_cmd_stack.push(SetCommand.new(b,3,5,4))
+  init_cmd_stack.push(SetCommand.new(b,6,5,6))
+  init_cmd_stack.push(SetCommand.new(b,3,6,6))
+  init_cmd_stack.push(SetCommand.new(b,5,6,3))
+  init_cmd_stack.push(SetCommand.new(b,8,6,7))
+  init_cmd_stack.push(SetCommand.new(b,0,7,4))
+  init_cmd_stack.push(SetCommand.new(b,5,7,1))
+  init_cmd_stack.push(SetCommand.new(b,6,7,8))
+  init_cmd_stack.push(SetCommand.new(b,5,8,4))
+  init_cmd_stack.push(SetCommand.new(b,7,8,3))
+  init_cmd_stack.do
+  puts b
+
+  solver = BacktrackSolver.new(b)
+  solver.solve
+
+  puts b
+  if b.solved?
+    puts "#### SOLVED ####"
+  else
+    puts "#### NOT SOLVED ####"
+  end
+
 end
