@@ -16,7 +16,7 @@ class Cell
   # observer(Blockオブジェクト)を追加する
   def add_observer(observer)
     unless observer.class == Block
-      raise
+      raise TypeError,"Class:#{self.class.name} ObserverにはBlockオブジェクトしか登録できません。(#{observer.class.name})"
     end
     @observers.push(observer)
   end

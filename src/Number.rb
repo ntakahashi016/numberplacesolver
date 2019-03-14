@@ -14,7 +14,7 @@ class Number
     if (@@min_value..@@max_value).include?(value)
       @value = value
     else
-      raise RangeError,"Class:#{self.class.name} RangeError"
+      raise RangeError,"Class:#{self.class.name} 初期化に失敗しました。範囲内(#{@@min_value.to_s}..#{@@max_value.to_s})の値を指定してください。(値＝#{value.to_s})"
     end
   end
 
@@ -25,7 +25,7 @@ class Number
     if value < @@max_value
       @@min_value = value
     else
-      raise RangeError,"Class:#{self.class.name} cannot set value lager than max_value to min_value"
+      raise RangeError,"Class:#{self.class.name} 現在の最大値(#{@@max_value.to_s})以上の値は最小値として設定できません。(値＝#{value.to_s})"
     end
   end
 
@@ -36,7 +36,7 @@ class Number
     if @@min_value < value
       @@max_value = value
     else
-      raise RangeError,"Class:#{self.class.name} cannot set value less than min_value to max_value"
+      raise RangeError,"Class:#{self.class.name} 現在の最小値(#{@@min_value.to_s})以下の値は最大値として設定できません。(値＝#{value.to_s})"
     end
   end
 
@@ -64,8 +64,8 @@ if $0 == __FILE__
       result << "Number.new(#{i}) : "
       num = Number.new(i)
       result << "OK"
-    rescue
-      result << "NG"
+    rescue => e
+      result << "NG" + " " + e.message
     ensure
       puts result
     end
@@ -79,8 +79,8 @@ if $0 == __FILE__
       result << "Number.set_min_value(#{i}) : "
       Number.set_min_value(i)
       result << "OK"
-    rescue
-      result << "NG"
+    rescue => e
+      result << "NG" + " " + e.message
     ensure
       puts result
     end
@@ -94,8 +94,8 @@ if $0 == __FILE__
       result << "Number.set_max_value(#{i}) : "
       Number.set_max_value(i)
       result << "OK"
-    rescue
-      result << "NG"
+    rescue => e
+      result << "NG" + " " + e.message
     ensure
       puts result
     end
@@ -123,8 +123,8 @@ if $0 == __FILE__
       result << "Number.new(#{i}) : "
       num = Number.new(i)
       result << "to_i => #{num.to_i}"
-    rescue
-      result << "NG"
+    rescue => e
+      result << "NG" + " " + e.message
     ensure
       puts result
     end

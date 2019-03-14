@@ -22,7 +22,7 @@ class Block
     if cell.class == Cell
       @cells.push(cell)
     else
-      raise TypeError           # CellオブジェクトでなければTypeError
+      raise TypeError,"Class:#{self.class.name}#add(cell) BlockにはCellオブジェクトしか登録できません。(#{cell.class.name})"
     end
   end
 
@@ -41,7 +41,7 @@ class Block
           @numbers[cell.number] = true
         else
           @numbers[cell.number] = false
-          raise "#{self.class.name} # #{cell.number} is aready exists."
+          raise "#Class:{self.class.name}#norify() #{cell.number} はBlockに既に存在します。"
         end
       end
     end

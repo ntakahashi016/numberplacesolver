@@ -10,7 +10,7 @@ class BacktrackSolver < Solver
     if board.class == Board
       @board = board
     else
-      raise "Class:#{self.class.name}:TypeError."
+      raise TypeError,"Class:#{self.class.name}:初期化に失敗しました"
     end
   end
 
@@ -37,7 +37,7 @@ class BacktrackSolver < Solver
           start = num + 1
         else
           # デバッグ用 実行時エラー
-          raise "Resumed. but the cell(#{x},#{y}) is set #{num}"
+          raise "ERROR(DEBUG) [#{x},#{y}]の処理に復帰しましたが #{num} がすでにセットされています"
         end
       end
       # 開始番号から使用する最大値までで、当てはまる数字が一つもないかどうかチェックする
@@ -62,11 +62,10 @@ class BacktrackSolver < Solver
         prev_cmd = cmd_stack.pop
         if prev_cmd == nil
           # コマンド履歴の最初まで遡った＝最初のマスでどの数字も当てはまらなかった場合、失敗
-          raise "Can't solve."
+          raise "ERROR 解が見つかりませんでした"
         end
         idx = (prev_cmd.y * 9) + prev_cmd.x # 前回実行したコマンドのインデックスに移動する
-        # 前回のコマンドで最大値をセットしていた場合は更にundoを実行しもう一つ前のコマンド実行時のインデックスに移動する
-        #### 複数回、9の復帰がかさなると9を消せない
+        # 前回のコマンドで最大値をセットしていた場合はundoを実行し更に前のコマンド実行時のインデックスに移動する
         while prev_cmd.number == 9 do
           prev_cmd.undo
           prev_cmd = cmd_stack.pop
@@ -76,7 +75,7 @@ class BacktrackSolver < Solver
       else
         if result == nil
           # デバッグ用 resultがnilの場合＝チェック範囲の指定ミス
-          raise "check range error"
+          raise "ERROR(DEBUG) [#{x},#{y}]で数字のチェックに失敗しました"
         end
         # result==falseは数字が当てはまった場合、次のマスに進む
         idx += 1
@@ -84,7 +83,7 @@ class BacktrackSolver < Solver
       end
       # デバッグ用 インデックスがBoardのサイズを超える＝最後のマスに数字が入ったがsolved?==falseの場合
       if idx > (@board.x_size * @board.y_size)
-        raise "reach final cell but not solved"
+        raise "ERROR 最後のマスまで到達しましたが問題を解けませんでした"
       end
     end
 

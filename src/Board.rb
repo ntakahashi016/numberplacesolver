@@ -29,8 +29,8 @@ class Board
     for y in 0...board_row do
       block = Block.new
       for x in  0...board_col do
-        block.add(@cells[y][x])
-        @cells[y][x].add_observer(block)
+        block.add(@cells[y][x])          rescue puts "WARNIG:" + $!.message
+        @cells[y][x].add_observer(block) rescue puts "WARNIG:" + $!.message
       end
       @blocks.push(block)
     end
@@ -38,8 +38,8 @@ class Board
     for x in 0...board_col do
       block = Block.new
       for y in 0...board_row do
-        block.add(@cells[y][x])
-        @cells[y][x].add_observer(block)
+        block.add(@cells[y][x])          rescue puts "WARNIG:" + $!.message
+        @cells[y][x].add_observer(block) rescue puts "WARNIG:" + $!.message
       end
       @blocks.push(block)
     end
@@ -51,8 +51,8 @@ class Board
           for l in 0...block_col do
             y = (i*block_row) + k
             x = (j*block_col) + l
-            block.add(@cells[y][x])
-            @cells[y][x].add_observer(block)
+            block.add(@cells[y][x])          rescue puts "WARNIG:" + $!.message
+            @cells[y][x].add_observer(block) rescue puts "WARNIG:" + $!.message
           end
         end
         @blocks.push(block)
