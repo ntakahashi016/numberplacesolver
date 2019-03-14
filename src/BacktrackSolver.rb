@@ -7,11 +7,7 @@ require './Command'
 class BacktrackSolver < Solver
 
   def initialize(board)
-    if board.class == Board
-      @board = board
-    else
-      raise TypeError,"Class:#{self.class.name}:初期化に失敗しました"
-    end
+    super(board)
   end
 
   def solve()

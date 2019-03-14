@@ -3,9 +3,9 @@ class Solver
 
   def initialize(board)
     if board.class == Board
-      @board = boad
+      @board = board
     else
-      raise "Class:#{self.class.name}:TypeError."
+      raise TypeError,"Class:#{self.class.name}:初期化に失敗しました"
     end
   end
 
