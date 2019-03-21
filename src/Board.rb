@@ -10,17 +10,10 @@ class Board
   def initialize(n)
     @cells = []
     @blocks = []
-    @x_size = n
-    @y_size = n
+    @x_size = 0
+    @y_size = 0
     @min = 1
     @max = n
-    block_size = Integer.sqrt(n)
-    if block_size ** 2 == n
-      block_col = block_size
-      block_row = block_size
-    else
-      raise "Class:#{self.class.name}##{__method__} 指定したサイズ(#{n})では盤面を生成できません。平方根が整数となる数値を使用してください"
-    end
     # 使用する数字の範囲を規定する
     begin
       Number.set_min_value(@min)
@@ -28,46 +21,16 @@ class Board
     rescue RangeError => e
       raise e
     end
-    # Board上の全Cellを生成
-    for y in 0...@y_size do
-      @cells[y] = []
-      for x in 0...@x_size do
-        @cells[y][x] = Cell.new(x,y)
-      end
-    end
-    # 横一列のBlockにCellを登録
-    for y in 0...@y_size do
-      block = Block.new(@max)
-      for x in  0...@x_size do
-        block.add(@cells[y][x])          rescue puts "WARNIG:" + $!.message
-        @cells[y][x].add_observer(block) rescue puts "WARNIG:" + $!.message
-      end
-      @blocks.push(block)
-    end
-    # 縦一列のBlockにCellを登録
-    for x in 0...@x_size do
-      block = Block.new(@max)
-      for y in 0...@y_size do
-        block.add(@cells[y][x])          rescue puts "WARNIG:" + $!.message
-        @cells[y][x].add_observer(block) rescue puts "WARNIG:" + $!.message
-      end
-      @blocks.push(block)
-    end
-    # NxN領域にCellを登録
-    for i in 0...(@y_size/block_row) do
-      for j in 0...(@x_size/block_col) do
-        block = Block.new(@max)
-        for k in 0...block_row do
-          for l in 0...block_col do
-            y = (i*block_row) + k
-            x = (j*block_col) + l
-            block.add(@cells[y][x])          rescue puts "WARNIG:" + $!.message
-            @cells[y][x].add_observer(block) rescue puts "WARNIG:" + $!.message
-          end
-        end
-        @blocks.push(block)
-      end
-    end
+  end
+
+  def set_cells(cells)
+    @x_size = cells.first.size
+    @y_size = cells.size
+    @cells = cells
+  end
+
+  def set_blocks(blocks)
+    @blocks = blocks
   end
 
   # set_number

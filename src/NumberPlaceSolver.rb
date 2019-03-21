@@ -1,6 +1,6 @@
 # coding: utf-8
 require 'qml'
-require './Board'
+require './BoardFactory'
 require './BacktrackSolver'
 require 'benchmark'
 
@@ -26,7 +26,7 @@ class NumberPlaceSolver
 
   # mainwindow.qmlからセルの配列を受け取る
   def set_cellarray(cellarray)
-    @@board = Board.new(self.num_type)
+    @@board = NxNBoardFactory.generate(self.num_type)
     # Boardが受付可能な形式にセルの配列を変換する
     numbers = gen_numbers(cellarray)
     @@board.set_numbers(numbers)
