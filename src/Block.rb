@@ -1,6 +1,5 @@
 # coding: utf-8
 
-require './Number'
 require './Cell'
 
 # Class:Block
@@ -8,10 +7,10 @@ require './Cell'
 # 領域内の数字に重複がないことをチェックする
 class Block
 
-  def initialize()
+  def initialize(n)
     @cells = []
     @numbers = {}
-    Number.available_values.each do |number|
+    (1..n).each do |number|
       @numbers[number] = false
     end
   end

@@ -40,12 +40,6 @@ class Number
     end
   end
 
-  # Number.available_values
-  # Numberクラスで設定可能な数字を配列で返す
-  def self.available_values()
-    (@@min_value..@@max_value).to_a
-  end
-
   # to_i
   # 値を整数で返す
   def to_i

@@ -37,7 +37,7 @@ class Board
     end
     # 横一列のBlockにCellを登録
     for y in 0...@y_size do
-      block = Block.new
+      block = Block.new(@max)
       for x in  0...@x_size do
         block.add(@cells[y][x])          rescue puts "WARNIG:" + $!.message
         @cells[y][x].add_observer(block) rescue puts "WARNIG:" + $!.message
@@ -46,7 +46,7 @@ class Board
     end
     # 縦一列のBlockにCellを登録
     for x in 0...@x_size do
-      block = Block.new
+      block = Block.new(@max)
       for y in 0...@y_size do
         block.add(@cells[y][x])          rescue puts "WARNIG:" + $!.message
         @cells[y][x].add_observer(block) rescue puts "WARNIG:" + $!.message
@@ -56,7 +56,7 @@ class Board
     # NxN領域にCellを登録
     for i in 0...(@y_size/block_row) do
       for j in 0...(@x_size/block_col) do
-        block = Block.new
+        block = Block.new(@max)
         for k in 0...block_row do
           for l in 0...block_col do
             y = (i*block_row) + k
