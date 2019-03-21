@@ -66,6 +66,10 @@ class BacktrackSolver < Solver
         while prev_cmd.number == @board.max do
           prev_cmd.undo
           prev_cmd = cmd_stack.pop
+          if prev_cmd == nil
+            # コマンド履歴の最初まで遡った＝最初のマスでどの数字も当てはまらなかった場合、失敗
+            raise "ERROR 解が見つかりませんでした"
+          end
           idx = (prev_cmd.y * @board.max) + prev_cmd.x
         end
         resume = true # 復帰フラグを立てる
