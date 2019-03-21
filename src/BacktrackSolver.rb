@@ -16,8 +16,8 @@ class BacktrackSolver < Solver
     resume = false # 復帰フラグ
 
     until @board.solved?
-      y = idx/9 # インデックスをもとにY座標を生成
-      x = idx%9 # インデックスをもとにX座標を生成
+      y = idx/@board.y_size # インデックスをもとにY座標を生成
+      x = idx%@board.x_size # インデックスをもとにX座標を生成
       num = @board.get_number(x,y)
       if !resume
         # 復帰でなくすでに数字が入っている場合、問題の数字であるため次のマスへすすめる
@@ -25,7 +25,7 @@ class BacktrackSolver < Solver
           idx += 1
           next
         else
-          start = 1 # マスが空の場合は1から始める
+          start = @board.min # マスが空の場合は1から始める
         end
       else
         # 復帰の場合、すでに入っている数字の次から始める
@@ -37,8 +37,9 @@ class BacktrackSolver < Solver
         end
       end
       # 開始番号から使用する最大値までで、当てはまる数字が一つもないかどうかチェックする
-      result = (start..9).none? do |n|
+      result = (start..@board.max).none? do |n|
         begin
+        # puts "################ #{sprintf("%3d",idx)}(#{sprintf("%2d",x)},#{sprintf("%2d",y)}) => #{sprintf("%2d",n)}"
           cmd = SetCommand.new(@board,x,y,n)
           cmd_stack.push(cmd)
           cmd.do
@@ -60,12 +61,12 @@ class BacktrackSolver < Solver
           # コマンド履歴の最初まで遡った＝最初のマスでどの数字も当てはまらなかった場合、失敗
           raise "ERROR 解が見つかりませんでした"
         end
-        idx = (prev_cmd.y * 9) + prev_cmd.x # 前回実行したコマンドのインデックスに移動する
+        idx = (prev_cmd.y * @board.max) + prev_cmd.x # 前回実行したコマンドのインデックスに移動する
         # 前回のコマンドで最大値をセットしていた場合はundoを実行し更に前のコマンド実行時のインデックスに移動する
-        while prev_cmd.number == 9 do
+        while prev_cmd.number == @board.max do
           prev_cmd.undo
           prev_cmd = cmd_stack.pop
-          idx = (prev_cmd.y * 9) + prev_cmd.x
+          idx = (prev_cmd.y * @board.max) + prev_cmd.x
         end
         resume = true # 復帰フラグを立てる
       else

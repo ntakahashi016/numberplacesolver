@@ -6,46 +6,56 @@ require './Block'
 
 class Board
 
-  def initialize()
+  attr_reader :x_size,:y_size,:min,:max
+  def initialize(n)
     @cells = []
     @blocks = []
-    board_col,board_row = 9,9     # 暫定で通常の9x9に対応
-    block_col,block_row = 3,3
+    @x_size = n
+    @y_size = n
+    @min = 1
+    @max = n
+    block_size = Integer.sqrt(n)
+    if block_size ** 2 == n
+      block_col = block_size
+      block_row = block_size
+    else
+      raise "Class:#{self.class.name}##{__method__} 指定したサイズ(#{n})では盤面を生成できません。平方根が整数となる数値を使用してください"
+    end
     # 使用する数字の範囲を規定する
     begin
-      Number.set_min_value(1)
-      Number.set_max_value(9)
+      Number.set_min_value(@min)
+      Number.set_max_value(@max)
     rescue RangeError => e
       raise e
     end
     # Board上の全Cellを生成
-    for y in 0...board_row do
+    for y in 0...@y_size do
       @cells[y] = []
-      for x in 0...board_col do
+      for x in 0...@x_size do
         @cells[y][x] = Cell.new(x,y)
       end
     end
     # 横一列のBlockにCellを登録
-    for y in 0...board_row do
+    for y in 0...@y_size do
       block = Block.new
-      for x in  0...board_col do
+      for x in  0...@x_size do
         block.add(@cells[y][x])          rescue puts "WARNIG:" + $!.message
         @cells[y][x].add_observer(block) rescue puts "WARNIG:" + $!.message
       end
       @blocks.push(block)
     end
     # 縦一列のBlockにCellを登録
-    for x in 0...board_col do
+    for x in 0...@x_size do
       block = Block.new
-      for y in 0...board_row do
+      for y in 0...@y_size do
         block.add(@cells[y][x])          rescue puts "WARNIG:" + $!.message
         @cells[y][x].add_observer(block) rescue puts "WARNIG:" + $!.message
       end
       @blocks.push(block)
     end
     # NxN領域にCellを登録
-    for i in 0...(board_row/block_row) do
-      for j in 0...(board_col/block_col) do
+    for i in 0...(@y_size/block_row) do
+      for j in 0...(@x_size/block_col) do
         block = Block.new
         for k in 0...block_row do
           for l in 0...block_col do
@@ -101,12 +111,15 @@ class Board
     @cells[y][x].number
   end
 
-  def x_size
-    @cells[0].size
-  end
-
-  def y_size
-    @cells.size
+  def get_numbers()
+    numbers_array = []
+    for y in 0...self.y_size do
+      numbers_array[y] = []
+      for x in 0...self.x_size do
+        numbers_array[y] << get_number(x,y)
+      end
+    end
+    numbers_array
   end
 
   # to_s
@@ -114,19 +127,19 @@ class Board
   def to_s
     str = ""
     for y in 0...self.y_size do
-      str << "+-" * self.x_size  + "+\n"
+      str << "+--" * self.x_size  + "+\n"
       for x in 0...self.x_size do
         str << "|"
         num = self.get_number(x,y)
         if num == nil
-          str << " "
+          str << "  "
         else
-          str << num.to_s
+          str << sprintf("%2d",num)
         end
       end
       str << "|\n"
     end
-    str << "+-" * self.x_size  + "+\n"
+    str << "+--" * self.x_size  + "+\n"
     str
   end
 
