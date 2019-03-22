@@ -6,7 +6,7 @@ require './Block'
 require './Board'
 
 class NxNBoardFactory < Factory
-  def self.generate(n)
+  def generate(n)
     board = Board.new(n)
     cells = []
     blocks = []
@@ -56,6 +56,29 @@ class NxNBoardFactory < Factory
       end
     end
 
+    board.set_cells(cells)
+    board.set_blocks(blocks)
+    board
+  end
+end
+
+class NxNDiagonalBoardFactory < NxNBoardFactory
+  def generate(n)
+    board = super(n)
+    cells = board.get_cells
+    blocks = board.get_blocks
+    block = Block.new(n)
+    (0...n).to_a.zip((0...n).to_a).each do |x,y|
+      block.add(cells[y][x])          rescue puts "WARNIG:" + $!.message
+      cells[y][x].add_observer(block) rescue puts "WARNIG:" + $!.message
+    end
+    blocks.push(block)
+    block = Block.new(n)
+    (0...n).to_a.zip((0...n).to_a.reverse).each do |x,y|
+      block.add(cells[y][x])          rescue puts "WARNIG:" + $!.message
+      cells[y][x].add_observer(block) rescue puts "WARNIG:" + $!.message
+    end
+    blocks.push(block)
     board.set_cells(cells)
     board.set_blocks(blocks)
     board

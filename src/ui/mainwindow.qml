@@ -196,6 +196,13 @@ ApplicationWindow {
 					}
 				}
 			}
+			CheckBox {
+				id: _diagonal
+				text: "Diagonal"
+				onClicked: {
+					nps.set_diagonal_type(_diagonal.checked)
+				}
+			}
 		}
 	}
 

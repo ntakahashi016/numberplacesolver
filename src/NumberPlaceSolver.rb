@@ -15,23 +15,26 @@ class NumberPlaceSolver
 
   @@solver = nil
   @@board = nil
-
-  def self.set_solver(solver)
-    @@solver = solver
-  end
-
-  def self.set_board(board)
-    @@board = board
-  end
+  @@factory = NxNBoardFactory
 
   # mainwindow.qmlからセルの配列を受け取る
   def set_cellarray(cellarray)
-    @@board = NxNBoardFactory.generate(self.num_type)
+    @@board = @@factory.generate(self.num_type)
+    # @@board = NxNBoardFactory.generate(self.num_type)
     # Boardが受付可能な形式にセルの配列を変換する
     numbers = gen_numbers(cellarray)
     @@board.set_numbers(numbers)
     @@solver = BacktrackSolver.new(@@board)
     # qml側に値を戻さない
+    nil
+  end
+
+  def set_diagonal_type(flag)
+    if flag
+      @@factory = NxNDiagonalBoardFactory.new
+    else
+      @@factory = NxNBoardFactory.new
+    end
     nil
   end
 

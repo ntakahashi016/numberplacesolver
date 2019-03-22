@@ -23,6 +23,12 @@ class BacktrackSolver < Solver
         # 復帰でなくすでに数字が入っている場合、問題の数字であるため次のマスへすすめる
         if num != nil
           idx += 1
+          # デバッグ用 インデックスがBoardのサイズを超える＝最後のマスに数字が入ったがsolved?==falseの場合
+          if idx >= (@board.x_size * @board.y_size)
+            puts "################"
+            @board.solved?
+            raise "ERROR 最後のマスまで到達しましたが問題を解けませんでした"
+          end
           next
         else
           start = @board.min # マスが空の場合は1から始める
@@ -39,7 +45,7 @@ class BacktrackSolver < Solver
       # 開始番号から使用する最大値までで、当てはまる数字が一つもないかどうかチェックする
       result = (start..@board.max).none? do |n|
         begin
-        # puts "################ #{sprintf("%3d",idx)}(#{sprintf("%2d",x)},#{sprintf("%2d",y)}) => #{sprintf("%2d",n)}"
+        puts "################ #{sprintf("%3d",idx)}(#{sprintf("%2d",x)},#{sprintf("%2d",y)}) => #{sprintf("%2d",n)}"
           cmd = SetCommand.new(@board,x,y,n)
           cmd_stack.push(cmd)
           cmd.do

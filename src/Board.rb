@@ -29,8 +29,16 @@ class Board
     @cells = cells
   end
 
+  def get_cells
+    @cells
+  end
+
   def set_blocks(blocks)
     @blocks = blocks
+  end
+
+  def get_blocks
+    @blocks
   end
 
   # set_number
