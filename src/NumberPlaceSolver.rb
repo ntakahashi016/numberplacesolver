@@ -2,6 +2,7 @@
 require 'qml'
 require './BoardFactory'
 require './BacktrackSolver'
+require './StandardSolver'
 require 'benchmark'
 
 class NumberPlaceSolver
@@ -15,7 +16,7 @@ class NumberPlaceSolver
 
   @@solver = nil
   @@board = nil
-  @@factory = NxNBoardFactory
+  @@factory = NxNBoardFactory.new
 
   # mainwindow.qmlからセルの配列を受け取る
   def set_cellarray(cellarray)
