@@ -11,11 +11,10 @@ class Number
   # Numberオブジェクトに値を設定する
   # 範囲外の値を指定された場合例外が発生する
   def initialize(value)
-    if (@@min_value..@@max_value).include?(value)
-      @value = value
-    else
+    unless (@@min_value..@@max_value).include?(value)
       raise RangeError,"Class:#{self.class.name} 初期化に失敗しました。範囲内(#{@@min_value.to_s}..#{@@max_value.to_s})の値を指定してください。(値＝#{value.to_s})"
     end
+    @value = value
   end
 
   # Number.set_min_value
