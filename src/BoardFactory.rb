@@ -19,7 +19,8 @@ class NxNBoardFactory < Factory
     for y in 0...n do
       cells[y] = []
       for x in 0...n do
-        cells[y][x] = Cell.new(x,y)
+        cells[y][x] = Cell.new(x,y,n)
+        cells[y][x].refresh_candidates
       end
     end
     # 横一列のBlockにCellを登録
