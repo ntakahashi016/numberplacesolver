@@ -5,11 +5,14 @@ require './Number'
 
 class Cell
 
-  def initialize(x,y)
+  attr_reader :x,:y,:candidates
+  def initialize(x,y,n)
     @x = x          # X座標
     @y = y          # Y座標
+    @n = n          # 数字の種類の数
     @number = nil   # 数字
     @observers = [] # 変更通知対象
+    @candidates = (1..@n).to_a
   end
 
   # add_observer
@@ -41,9 +44,13 @@ class Cell
         @number = nil
       else
         @number = Number.new(n)
+        @caindidates = []
       end
       self.notify_observers
+      self.refresh_candidates
     rescue RangeError => e
+      raise e
+    rescue TypeError => e
       raise e
     rescue => e
       raise e
@@ -57,6 +64,16 @@ class Cell
       @number.to_i
     else
       nil
+    end
+  end
+
+  def refresh_candidates
+    if @number == nil
+      @candidates = (1..@n).to_a
+      @observers.each do |observer|
+        @candidates &= observer.get_candidates
+      end
+      @candidates
     end
   end
 end

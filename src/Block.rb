@@ -9,10 +9,8 @@ class Block
 
   def initialize(n)
     @cells = []
-    @numbers = {}
-    (1..n).each do |number|
-      @numbers[number] = false
-    end
+    @n = n
+    @candidates = (1..n).to_a
   end
 
   # add
@@ -29,26 +27,26 @@ class Block
   # 領域内のマスに変更があった場合に、数字に重複がないか
   # チェックする
   def notify()
-    @numbers.each do |k,v|
-      @numbers[k] = false
-    end
+    @candidates = (1..@n).to_a
     @cells.each do |cell|
       if cell.number == nil
         next                    # Cellに数字(Numberオブジェクト)が登録されてなければ次へ
       else
-        if @numbers[cell.number] == false
-          @numbers[cell.number] = true
+        if @candidates.include?(cell.number)
+          @candidates -= [cell.number]
         else
-          @numbers[cell.number] = false
           raise "#Class:{self.class.name}#norify() #{cell.number} はBlockに既に存在します。"
         end
       end
     end
+    @candidates
+  end
+
+  def get_candidates
+    @candidates
   end
 
   def solved?
-    @numbers.all? do |n|
-      n[1] # flag部分
-    end
+    @candidates == []
   end
 end

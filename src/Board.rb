@@ -33,6 +33,10 @@ class Board
     @cells
   end
 
+  def get_empty_cells
+    @cells.map {|cell| cell!=nil}
+  end
+
   def set_blocks(blocks)
     @blocks = blocks
   end
@@ -46,7 +50,10 @@ class Board
   def set_number(x,y,n)
     begin
       @cells[y][x].number = n
+      refresh_candidates
     rescue RangeError => e
+      raise e
+    rescue TypeError => e
       raise e
     rescue => e
       raise e
@@ -69,11 +76,14 @@ class Board
           self.set_number(x,y,number)
         rescue RangeError => e
           puts "WARNING:Class:#{self.class.name}##{__method__} [#{x.to_s},#{y.to_s}]の値(#{number.to_s})は範囲外です。[#{x.to_s},#{y.to_s}]への値の設定をスキップしました。"
+        rescue TypeError => e
+          puts e.message
         rescue => e
           puts "WARNING:Class:#{self.class.name}##{__method__} [#{x.to_s},#{y.to_s}]の値(#{number.to_s})は重複しています。"
         end
       end
     end
+    refresh_candidates
   end
 
   # get_number
@@ -91,6 +101,14 @@ class Board
       end
     end
     numbers_array
+  end
+
+  def refresh_candidates()
+    for y in 0...self.y_size do
+      for x in 0...self.x_size do
+        @cells[y][x].refresh_candidates
+      end
+    end
   end
 
   # to_s
@@ -127,7 +145,7 @@ if $0 == __FILE__
   require './Command'
   require './BacktrackSolver'
 
-  b = Board.new()
+  b = Board.new(9)
   puts b.to_s
   if b.solved?
     puts "#### SOLVED ####"
@@ -180,39 +198,7 @@ if $0 == __FILE__
   end
   puts "################################################################"
 
-  b = Board.new()
-  # init_cmd_stack = CompositCommand.new
-  # init_cmd_stack.push(SetCommand.new(b,0,0,5))
-  # init_cmd_stack.push(SetCommand.new(b,1,0,3))
-  # init_cmd_stack.push(SetCommand.new(b,4,0,7))
-  # init_cmd_stack.push(SetCommand.new(b,0,1,6))
-  # init_cmd_stack.push(SetCommand.new(b,3,1,1))
-  # init_cmd_stack.push(SetCommand.new(b,4,1,9))
-  # init_cmd_stack.push(SetCommand.new(b,5,1,5))
-  # init_cmd_stack.push(SetCommand.new(b,1,2,9))
-  # init_cmd_stack.push(SetCommand.new(b,2,2,8))
-  # init_cmd_stack.push(SetCommand.new(b,7,2,6))
-  # init_cmd_stack.push(SetCommand.new(b,0,3,8))
-  # init_cmd_stack.push(SetCommand.new(b,4,3,6))
-  # init_cmd_stack.push(SetCommand.new(b,8,3,3))
-  # init_cmd_stack.push(SetCommand.new(b,0,4,4))
-  # init_cmd_stack.push(SetCommand.new(b,3,4,8))
-  # init_cmd_stack.push(SetCommand.new(b,5,4,3))
-  # init_cmd_stack.push(SetCommand.new(b,8,4,1))
-  # init_cmd_stack.push(SetCommand.new(b,0,5,7))
-  # init_cmd_stack.push(SetCommand.new(b,4,5,2))
-  # init_cmd_stack.push(SetCommand.new(b,8,5,6))
-  # init_cmd_stack.push(SetCommand.new(b,1,6,6))
-  # init_cmd_stack.push(SetCommand.new(b,6,6,2))
-  # init_cmd_stack.push(SetCommand.new(b,7,6,8))
-  # init_cmd_stack.push(SetCommand.new(b,3,7,4))
-  # init_cmd_stack.push(SetCommand.new(b,4,7,1))
-  # init_cmd_stack.push(SetCommand.new(b,5,7,9))
-  # init_cmd_stack.push(SetCommand.new(b,8,7,5))
-  # init_cmd_stack.push(SetCommand.new(b,4,8,8))
-  # init_cmd_stack.push(SetCommand.new(b,7,8,7))
-  # init_cmd_stack.push(SetCommand.new(b,8,8,9))
-  # init_cmd_stack.do
+  b = Board.new(9)
   numbers_array = [[  5,  3,nil,nil,  7,nil,nil,nil,nil],
                    [  6,nil,nil,  1,  9,  5,nil,nil,nil],
                    [nil,  9,  8,nil,nil,nil,nil,  6,nil],
@@ -236,34 +222,7 @@ if $0 == __FILE__
     puts "#### NOT SOLVED ####"
   end
 
-  b = Board.new()
-  # init_cmd_stack = CompositCommand.new
-  # init_cmd_stack.push(SetCommand.new(b,0,0,3))
-  # init_cmd_stack.push(SetCommand.new(b,2,0,6))
-  # init_cmd_stack.push(SetCommand.new(b,4,0,8))
-  # init_cmd_stack.push(SetCommand.new(b,2,1,7))
-  # init_cmd_stack.push(SetCommand.new(b,8,1,6))
-  # init_cmd_stack.push(SetCommand.new(b,1,2,8))
-  # init_cmd_stack.push(SetCommand.new(b,3,2,7))
-  # init_cmd_stack.push(SetCommand.new(b,6,2,1))
-  # init_cmd_stack.push(SetCommand.new(b,0,3,1))
-  # init_cmd_stack.push(SetCommand.new(b,1,3,4))
-  # init_cmd_stack.push(SetCommand.new(b,7,3,5))
-  # init_cmd_stack.push(SetCommand.new(b,0,4,6))
-  # init_cmd_stack.push(SetCommand.new(b,5,4,5))
-  # init_cmd_stack.push(SetCommand.new(b,6,4,9))
-  # init_cmd_stack.push(SetCommand.new(b,8,4,2))
-  # init_cmd_stack.push(SetCommand.new(b,3,5,4))
-  # init_cmd_stack.push(SetCommand.new(b,6,5,6))
-  # init_cmd_stack.push(SetCommand.new(b,3,6,6))
-  # init_cmd_stack.push(SetCommand.new(b,5,6,3))
-  # init_cmd_stack.push(SetCommand.new(b,8,6,7))
-  # init_cmd_stack.push(SetCommand.new(b,0,7,4))
-  # init_cmd_stack.push(SetCommand.new(b,5,7,1))
-  # init_cmd_stack.push(SetCommand.new(b,6,7,8))
-  # init_cmd_stack.push(SetCommand.new(b,5,8,4))
-  # init_cmd_stack.push(SetCommand.new(b,7,8,3))
-  # init_cmd_stack.do
+  b = Board.new(9)
   numbers_array = [[  3,nil,  6,nil,  8,nil,nil,nil,nil],
                    [nil,nil,  7,nil,nil,nil,nil,nil,  6],
                    [nil,  8,nil,  7,nil,nil,  1,nil,nil],
