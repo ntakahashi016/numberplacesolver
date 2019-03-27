@@ -27,7 +27,12 @@ class Board
   end
 
   def get_empty_cells
-    @cells.map {|cell| cell!=nil}
+    cells = @cells.map do |row|
+      row.map do |cell|
+        (cell.number==nil) ? cell : nil
+      end
+    end
+    cells.flatten.compact
   end
 
   def set_blocks(blocks)
