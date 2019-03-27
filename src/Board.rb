@@ -15,12 +15,6 @@ class Board
     @min = 1
     @max = n
     # 使用する数字の範囲を規定する
-    begin
-      Number.set_min_value(@min)
-      Number.set_max_value(@max)
-    rescue RangeError => e
-      raise e
-    end
   end
 
   def set_cells(cells)
