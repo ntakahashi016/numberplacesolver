@@ -1,6 +1,5 @@
 # coding: utf-8
 
-require './Number'
 require './Cell'
 require './Block'
 

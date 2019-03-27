@@ -1,7 +1,6 @@
 # coding: utf-8
 
 require './Block'
-require './Number'
 
 class Cell
 
