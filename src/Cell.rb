@@ -43,7 +43,7 @@ class Cell
       if n == nil
         @number = nil
       else
-        @number = Number.new(n)
+        @number = n
         @caindidates = []
       end
       self.notify_observers
@@ -61,7 +61,7 @@ class Cell
   # 数字を取得する
   def number()
     unless @number == nil
-      @number.to_i
+      @number
     else
       nil
     end
