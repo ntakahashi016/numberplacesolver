@@ -2,7 +2,6 @@
 
 require './Solver'
 require './Board'
-require './Command'
 
 class BacktrackSolver < Solver
 
@@ -11,89 +10,40 @@ class BacktrackSolver < Solver
   end
 
   def solve()
-    cmd_stack = CompositCommand.new
-    idx = 0   # インデックス
-    resume = false # 復帰フラグ
+    i      = 0  # 対象の空のセルの番号
+    stack  = [] # 実行した動作のスタック、内容はハッシュにする
+    resume = 0  # 数字が入らなかった場合に前のセルに復帰する際の数字
 
+    # cellsは空のセルの配列
+    cells = @board.get_empty_cells
     until @board.solved?
-      y = idx/@board.y_size # インデックスをもとにY座標を生成
-      x = idx%@board.x_size # インデックスをもとにX座標を生成
-      num = @board.get_number(x,y)
-      if !resume
-        # 復帰でなくすでに数字が入っている場合、問題の数字であるため次のマスへすすめる
-        if num != nil
-          idx += 1
-          # デバッグ用 インデックスがBoardのサイズを超える＝最後のマスに数字が入ったがsolved?==falseの場合
-          if idx >= (@board.x_size * @board.y_size)
-            puts "################"
-            @board.solved?
-            raise "ERROR 最後のマスまで到達しましたが問題を解けませんでした"
-          end
-          next
-        else
-          start = @board.min # マスが空の場合は1から始める
+      # 復帰処理でない場合、resumeは0のため候補配列の先頭から実行する
+      # 復帰処理の場合、resumeより大きい候補から実行する
+      # ただし、すべての候補を試行していた場合、nil
+      number = cells[i].candidates.find {|n| resume < n}
+      # 候補配列画からの場合、前のセルの処理に復帰する
+      # また、すべての候補を試行していた場合も同様に前のセルの処理に復帰する
+      if (cells[i].candidates.empty?) || (number==nil)
+        # スタックから前の処理を取り出し、取り消す
+        prev = stack.pop
+        # 前のセルの処理が無い=先頭のセルにいずれの候補も入らなかった場合=>解なし
+        if prev == nil
+          raise "ERROR 解が見つかりませんでした。"
         end
-      else
-        # 復帰の場合、すでに入っている数字の次から始める
-        if num != nil
-          start = num + 1
-        else
-          # デバッグ用 実行時エラー
-          raise "ERROR(DEBUG) [#{x},#{y}]の処理に復帰しましたが #{num} がすでにセットされています"
-        end
+        # 前の処理を取り消す=数字としてnilを設定する
+        @board.set_number(prev[:x], prev[:y], nil)
+        # resumeに前回試行した数字を保存しておく
+        resume = prev[:n]
+        i -= 1
+        next
       end
-      # 開始番号から使用する最大値までで、当てはまる数字が一つもないかどうかチェックする
-      result = (start..@board.max).none? do |n|
-        begin
-        puts "################ #{sprintf("%3d",idx)}(#{sprintf("%2d",x)},#{sprintf("%2d",y)}) => #{sprintf("%2d",n)}"
-          cmd = SetCommand.new(@board,x,y,n)
-          cmd_stack.push(cmd)
-          cmd.do
-          true # 数字が問題なくセットできた
-        rescue RangeError => e
-          # デバッグ用 Rangeエラー 使用する数字の範囲に誤りがある場合
-          raise e.message
-        rescue
-          cmd.undo
-          cmd_stack.pop
-          false # 数字がセットできなかった＝番号の重複があった
-        end
-      end
-      # result==trueはどの数字も当てはまらなかった場合
-      if result == true
-        # 一つ前のコマンドを取り出す
-        prev_cmd = cmd_stack.pop
-        if prev_cmd == nil
-          # コマンド履歴の最初まで遡った＝最初のマスでどの数字も当てはまらなかった場合、失敗
-          raise "ERROR 解が見つかりませんでした"
-        end
-        idx = (prev_cmd.y * @board.max) + prev_cmd.x # 前回実行したコマンドのインデックスに移動する
-        # 前回のコマンドで最大値をセットしていた場合はundoを実行し更に前のコマンド実行時のインデックスに移動する
-        while prev_cmd.number == @board.max do
-          prev_cmd.undo
-          prev_cmd = cmd_stack.pop
-          if prev_cmd == nil
-            # コマンド履歴の最初まで遡った＝最初のマスでどの数字も当てはまらなかった場合、失敗
-            raise "ERROR 解が見つかりませんでした"
-          end
-          idx = (prev_cmd.y * @board.max) + prev_cmd.x
-        end
-        resume = true # 復帰フラグを立てる
-      else
-        if result == nil
-          # デバッグ用 resultがnilの場合＝チェック範囲の指定ミス
-          raise "ERROR(DEBUG) [#{x},#{y}]で数字のチェックに失敗しました"
-        end
-        # result==falseは数字が当てはまった場合、次のマスに進む
-        idx += 1
-        resume = false
-      end
-      # デバッグ用 インデックスがBoardのサイズを超える＝最後のマスに数字が入ったがsolved?==falseの場合
-      if idx > (@board.x_size * @board.y_size)
-        raise "ERROR 最後のマスまで到達しましたが問題を解けませんでした"
-      end
+      # 実行する処理をスタックに保存する
+      stack.push({x: cells[i].x, y: cells[i].y, n: number})
+      # 数字を設定する
+      @board.set_number(cells[i].x, cells[i].y, number)
+      # 復帰でないためresumeの値を初期化しておく
+      resume = 0
+      i += 1
     end
-
   end
-
 end
