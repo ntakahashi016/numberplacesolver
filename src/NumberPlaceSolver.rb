@@ -16,7 +16,7 @@ class NumberPlaceSolver
 
   @@solver = nil
   @@board = nil
-  @@factory = NxNBoardFactory.new
+  @@factory = StandardBoardFactory.new
 
   # mainwindow.qmlからセルの配列を受け取る
   def set_cellarray(cellarray)
@@ -32,9 +32,9 @@ class NumberPlaceSolver
 
   def set_diagonal_type(flag)
     if flag
-      @@factory = NxNDiagonalBoardFactory.new
+      @@factory = DiagonalBoardFactory.new
     else
-      @@factory = NxNBoardFactory.new
+      @@factory = StandardBoardFactory.new
     end
     nil
   end

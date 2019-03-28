@@ -2,16 +2,16 @@
 
 require './Factory'
 require './Cell'
-require './Block'
+require './Constraint'
 require './Board'
 
-class NxNBoardFactory < Factory
+class StandardBoardFactory < Factory
   def generate(n)
-    board = Board.new(n)
-    cells = []
-    blocks = []
-    block_size = Integer.sqrt(n)
-    unless block_size ** 2 == n
+    board           = Board.new(n)
+    cells           = []
+    constraints     = []
+    constraint_size = Integer.sqrt(n)
+    unless constraint_size ** 2 == n
       raise "Class:#{self.class.name}##{__method__} 指定したサイズ(#{n})では盤面を生成できません。平方根が整数となる数値を使用してください"
     end
 
@@ -20,68 +20,68 @@ class NxNBoardFactory < Factory
       cells[y] = []
       for x in 0...n do
         cells[y][x] = Cell.new(x,y,n)
-        cells[y][x].refresh_candidates
+        cells[y][x].update_candidates
       end
     end
-    # 横一列のBlockにCellを登録
+    # 横一列のConstraintにCellを登録
     for y in 0...n do
-      block = Block.new(n)
+      constraint = Constraint.new(n)
       for x in  0...n do
-        block.add(cells[y][x])          rescue puts "WARNIG:" + $!.message
-        cells[y][x].add_observer(block) rescue puts "WARNIG:" + $!.message
+        constraint.add(cells[y][x])          rescue puts "WARNIG:" + $!.message
+        cells[y][x].add_observer(constraint) rescue puts "WARNIG:" + $!.message
       end
-      blocks.push(block)
+      constraints.push(constraint)
     end
-    # 縦一列のBlockにCellを登録
+    # 縦一列のConstraintにCellを登録
     for x in 0...n do
-      block = Block.new(n)
+      constraint = Constraint.new(n)
       for y in 0...n do
-        block.add(cells[y][x])          rescue puts "WARNIG:" + $!.message
-        cells[y][x].add_observer(block) rescue puts "WARNIG:" + $!.message
+        constraint.add(cells[y][x])          rescue puts "WARNIG:" + $!.message
+        cells[y][x].add_observer(constraint) rescue puts "WARNIG:" + $!.message
       end
-      blocks.push(block)
+      constraints.push(constraint)
     end
-    # NxN領域にCellを登録
-    for i in 0...(n/block_size) do
-      for j in 0...(n/block_size) do
-        block = Block.new(n)
-        for k in 0...block_size do
-          for l in 0...block_size do
-            y = (i*block_size) + k
-            x = (j*block_size) + l
-            block.add(cells[y][x])          rescue puts "WARNIG:" + $!.message
-            cells[y][x].add_observer(block) rescue puts "WARNIG:" + $!.message
+    # Box領域にCellを登録
+    for i in 0...(n/constraint_size) do
+      for j in 0...(n/constraint_size) do
+        constraint = Constraint.new(n)
+        for k in 0...constraint_size do
+          for l in 0...constraint_size do
+            y = (i*constraint_size) + k
+            x = (j*constraint_size) + l
+            constraint.add(cells[y][x])          rescue puts "WARNIG:" + $!.message
+            cells[y][x].add_observer(constraint) rescue puts "WARNIG:" + $!.message
           end
         end
-        blocks.push(block)
+        constraints.push(constraint)
       end
     end
 
     board.set_cells(cells)
-    board.set_blocks(blocks)
+    board.set_constraints(constraints)
     board
   end
 end
 
-class NxNDiagonalBoardFactory < NxNBoardFactory
+class DiagonalBoardFactory < StandardBoardFactory
   def generate(n)
     board = super(n)
     cells = board.get_cells
-    blocks = board.get_blocks
-    block = Block.new(n)
+    constraints = board.get_constraints
+    constraint = Constraint.new(n)
     (0...n).to_a.zip((0...n).to_a).each do |x,y|
-      block.add(cells[y][x])          rescue puts "WARNIG:" + $!.message
-      cells[y][x].add_observer(block) rescue puts "WARNIG:" + $!.message
+      constraint.add(cells[y][x])          rescue puts "WARNIG:" + $!.message
+      cells[y][x].add_observer(constraint) rescue puts "WARNIG:" + $!.message
     end
-    blocks.push(block)
-    block = Block.new(n)
+    constraints.push(constraint)
+    constraint = Constraint.new(n)
     (0...n).to_a.zip((0...n).to_a.reverse).each do |x,y|
-      block.add(cells[y][x])          rescue puts "WARNIG:" + $!.message
-      cells[y][x].add_observer(block) rescue puts "WARNIG:" + $!.message
+      constraint.add(cells[y][x])          rescue puts "WARNIG:" + $!.message
+      cells[y][x].add_observer(constraint) rescue puts "WARNIG:" + $!.message
     end
-    blocks.push(block)
+    constraints.push(constraint)
     board.set_cells(cells)
-    board.set_blocks(blocks)
+    board.set_constraints(constraints)
     board
   end
 end

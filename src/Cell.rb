@@ -1,81 +1,55 @@
 # coding: utf-8
 
-require './Block'
+require './Constraint'
 
 class Cell
+  attr_reader :x,:y,:n,:candidates
 
-  attr_reader :x,:y,:candidates
-  def initialize(x,y,n)
-    @x = x          # X座標
-    @y = y          # Y座標
-    @n = n          # 数字の種類の数
-    @number = nil   # 数字
-    @observers = [] # 変更通知対象
-    @candidates = (1..@n).to_a
+  def initialize(x,y,n_max)
+    @x          = x                # X座標
+    @y          = y                # Y座標
+    @n_max      = n_max            # 数字の最大値
+    @n          = nil              # 数字
+    @observers  = []               # 変更通知対象
+    @candidates = (1..@n_max).to_a # 入りうる数字の候補
   end
 
   # add_observer
-  # observer(Blockオブジェクト)を追加する
-  def add_observer(observer)
-    unless observer.class == Block
-      raise TypeError,"Class:#{self.class.name} ObserverにはBlockオブジェクトしか登録できません。(#{observer.class.name})"
-    end
-    @observers.push(observer)
+  # observer(Constraintオブジェクト)を追加する
+  def add_observer(constraint)
+    raise TypeError unless constraint.class==Constraint
+    @observers.push(constraint)
   end
 
   # notify_observers
   # observerに変更があったことを通知する
   def notify_observers()
-    @observers.each do |observer|
-      begin
-        observer.notify
-      rescue => e
-        raise e
-      end
+    @observers.each do |constraint|
+    constraint.notify rescue raise
     end
   end
 
-  # number=
+  # n=
   # 数字を設定する
-  def number=(n)
-    begin
-      if n == nil
-        @number = nil
-      else
-        @number = n
-        @caindidates = []
-      end
-      self.notify_observers
-      self.refresh_candidates
-    rescue RangeError => e
-      raise e
-    rescue TypeError => e
-      raise e
-    rescue => e
-      raise e
-    end
+  def n=(n)
+    raise TypeError  unless (n.class==Integer) || (n.class==NilClass)
+    raise RangeError unless (1..@n_max).include?(n) || n==nil
+    @n = n
+    self.notify_observers rescue raise
+    self.update_candidates
   end
 
-  # number
-  # 数字を取得する
-  def number()
-    unless @number == nil
-      @number
+  def update_candidates
+    if @n == nil
+      @candidates = (1..@n_max).to_a
+      @observers.each do |constraint|
+        @candidates &= constraint.candidates
+      end
     else
-      nil
+      @candidates = []
     end
-  end
-
-  def refresh_candidates
-    if @number == nil
-      @candidates = (1..@n).to_a
-      @observers.each do |observer|
-        @candidates &= observer.get_candidates
-      end
-      @candidates
-    end
+    nil
   end
 end
 
 
-# test

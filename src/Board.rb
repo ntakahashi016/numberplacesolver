@@ -1,25 +1,32 @@
 # coding: utf-8
 
 require './Cell'
-require './Block'
+require './Constraint'
 
 class Board
+  attr_reader :x_size,:y_size,:n_min,:n_max
 
-  attr_reader :x_size,:y_size,:min,:max
-  def initialize(n)
-    @cells = []
-    @blocks = []
-    @x_size = 0
-    @y_size = 0
-    @min = 1
-    @max = n
-    # 使用する数字の範囲を規定する
+  def initialize(n_max)
+    @cells       = []     # セルの集合、二次元の配列で盤面と対応させる
+    @constraints = []     # 制約の集合
+    @x_size      = 0      # 横方向のセルの数
+    @y_size      = 0      # 縦方向のせるの数
+    @n_min       = 1      # 使用する数字の最小値
+    @n_max       = n_max  # 使用する数字の最大値
   end
 
   def set_cells(cells)
+    raise TypeError unless cells.class == Array
+    raise TypeError unless cells.all? { |row| row.class==Array }
+    result = cells.all? do |row|
+      row.all? do |cell|
+        (cell.class==Cell) || (cell.class==NilClass)
+      end
+    end
+    raise TypeError unless result
     @x_size = cells.first.size
     @y_size = cells.size
-    @cells = cells
+    @cells  = cells
   end
 
   def get_cells
@@ -29,26 +36,28 @@ class Board
   def get_empty_cells
     cells = @cells.map do |row|
       row.map do |cell|
-        (cell.number==nil) ? cell : nil
+        (cell.n==nil) ? cell : nil
       end
     end
     cells.flatten.compact
   end
 
-  def set_blocks(blocks)
-    @blocks = blocks
+  def set_constraints(constraints)
+    raise TypeError unless constraints.class == Array
+    raise TypeError unless constraints.all? { |c| c.class==Constraint }
+    @constraints = constraints
   end
 
-  def get_blocks
-    @blocks
+  def get_constraints
+    @constraints
   end
 
   # set_number
   # x,y座標で値を設定する
   def set_number(x,y,n)
     begin
-      @cells[y][x].number = n
-      refresh_candidates
+      @cells[y][x].n = n
+      update_candidates
     rescue RangeError => e
       raise e
     rescue TypeError => e
@@ -60,64 +69,60 @@ class Board
 
   # set_numbers
   # 値を配列から入力する
-  def set_numbers(numbers_array)
-    if numbers_array.class != Array
-      raise TypeError, "Class:#{self.class.name}##{__method__} 引数がArrayではありません。(#{numbers_array.class.name})"
-    end
-    result = numbers_array.all? { |numbers| (numbers.class == Array)||(numbers.class == NilClass) }
-    unless result
-      raise TypeError, "Class:#{self.class.name}##{__method__} 引数のArrayオブジェクトの内容にArrayまたはNilでないものが含まれています。"
-    end
-    numbers_array.each_with_index do |numbers,y|
-      numbers.each_with_index do |number,x|
+  def set_numbers(numbers)
+    raise TypeError unless numbers.class == Array
+    raise TypeError unless numbers.all? { |row| row.class==Array}
+    numbers.each_with_index do |row,y|
+      row.each_with_index do |n,x|
         begin
-          self.set_number(x,y,number)
-        rescue RangeError => e
-          puts "WARNING:Class:#{self.class.name}##{__method__} [#{x.to_s},#{y.to_s}]の値(#{number.to_s})は範囲外です。[#{x.to_s},#{y.to_s}]への値の設定をスキップしました。"
+          set_number(x,y,n)
         rescue TypeError => e
           puts e.message
+        rescue RangeError => e
+          puts "WARNING:Class:#{self.class.name}##{__method__} [#{x.to_s},#{y.to_s}]の値(#{n.to_s})は範囲外です。[#{x.to_s},#{y.to_s}]への値の設定をスキップしました。"
         rescue => e
-          puts "WARNING:Class:#{self.class.name}##{__method__} [#{x.to_s},#{y.to_s}]の値(#{number.to_s})は重複しています。"
+          puts "WARNING:Class:#{self.class.name}##{__method__} [#{x.to_s},#{y.to_s}]の値(#{n.to_s})は重複しています。"
         end
       end
     end
-    refresh_candidates
+    update_candidates
   end
 
   # get_number
   # x,y座標で値を取得する
   def get_number(x,y)
-    @cells[y][x].number
+    @cells[y][x].n
   end
 
   def get_numbers()
-    numbers_array = []
-    for y in 0...self.y_size do
-      numbers_array[y] = []
-      for x in 0...self.x_size do
-        numbers_array[y] << get_number(x,y)
+    numbers = []
+    for y in 0...@y_size do
+      numbers[y] = []
+      for x in 0...@x_size do
+        numbers[y] << get_number(x,y)
       end
     end
-    numbers_array
+    numbers
   end
 
-  def refresh_candidates()
-    for y in 0...self.y_size do
-      for x in 0...self.x_size do
-        @cells[y][x].refresh_candidates
+  def update_candidates()
+    for y in 0...@y_size do
+      for x in 0...@x_size do
+        @cells[y][x].update_candidates
       end
     end
+    nil
   end
 
   # to_s
   # 盤面を簡易的に文字列にして返す
   def to_s
     str = ""
-    for y in 0...self.y_size do
-      str << "+--" * self.x_size  + "+\n"
-      for x in 0...self.x_size do
+    for y in 0...@y_size do
+      str << "+--" * @x_size  + "+\n"
+      for x in 0...@x_size do
         str << "|"
-        num = self.get_number(x,y)
+        num = get_number(x,y)
         if num == nil
           str << "  "
         else
@@ -126,121 +131,13 @@ class Board
       end
       str << "|\n"
     end
-    str << "+--" * self.x_size  + "+\n"
+    str << "+--" * @x_size  + "+\n"
     str
   end
 
   # solved?
   # 問題が解けているかどうか返す
   def solved?
-    @blocks.all? {|block| block.solved? }
+    @constraints.all? {|constraint| constraint.solved? }
   end
-end
-
-
-#test
-if $0 == __FILE__
-  require './Command'
-  require './BacktrackSolver'
-
-  b = Board.new(9)
-  puts b.to_s
-  if b.solved?
-    puts "#### SOLVED ####"
-  else
-    puts "#### NOT SOLVED ####"
-  end
-
-  numarr = (1..9).to_a
-  for y in 0..8 do
-    for x in 0..8 do
-      i = (x + y/3 + 0) % 9 if (y % 3) == 0
-      i = (x + y/3 + 3) % 9 if (y % 3) == 1
-      i = (x + y/3 + 6) % 9 if (y % 3) == 2
-      begin
-        b.set_number(x,y,numarr[i])
-      rescue => e
-        puts "Error #{e.message}"
-      end
-    end
-    puts b.to_s
-  end
-  puts "################################################################"
-  puts b.to_s
-  puts "################################################################"
-  if b.solved?
-    puts "#### SOLVED ####"
-  else
-    puts "#### NOT SOLVED ####"
-  end
-  puts "################################################################"
-  # for x in 0..8 do
-  #   for y in 0..8 do
-  #     puts "get_number(#{x},#{y}) : #{b.get_number(x,y)}"
-  #   end
-  # end
-  begin
-    b.set_number(0,0,0)
-  rescue => e
-    puts e.message
-  end
-  begin
-    b.set_number(0,0,2)
-  rescue => e
-    puts e.message
-  end
-  if b.solved?
-    puts "#### SOLVED ####"
-  else
-    puts "#### NOT SOLVED ####"
-  end
-  puts "################################################################"
-
-  b = Board.new(9)
-  numbers_array = [[  5,  3,nil,nil,  7,nil,nil,nil,nil],
-                   [  6,nil,nil,  1,  9,  5,nil,nil,nil],
-                   [nil,  9,  8,nil,nil,nil,nil,  6,nil],
-                   [  8,nil,nil,nil,  6,nil,nil,nil,  3],
-                   [  4,nil,nil,  8,nil,  3,nil,nil,  1],
-                   [  7,nil,nil,nil,  2,nil,nil,nil,  6],
-                   [nil,  6,nil,nil,nil,nil,  2,  8,nil],
-                   [nil,nil,nil,  4,  1,  9,nil,nil,  5],
-                   [nil,nil,nil,nil,  8,nil,nil,  7,  9]]
-  b.set_numbers(numbers_array)
-
-  puts b
-
-  solver = BacktrackSolver.new(b)
-  solver.solve
-
-  puts b
-  if b.solved?
-    puts "#### SOLVED ####"
-  else
-    puts "#### NOT SOLVED ####"
-  end
-
-  b = Board.new(9)
-  numbers_array = [[  3,nil,  6,nil,  8,nil,nil,nil,nil],
-                   [nil,nil,  7,nil,nil,nil,nil,nil,  6],
-                   [nil,  8,nil,  7,nil,nil,  1,nil,nil],
-                   [  1,  4,nil,nil,nil,nil,nil,  5,nil],
-                   [  6,nil,nil,nil,nil,  5,  9,nil,  2],
-                   [nil,nil,nil,  4,nil,nil,  6,nil,nil],
-                   [nil,nil,nil,  6,nil,  3,nil,nil,  7],
-                   [  4,nil,nil,nil,nil,  1,  8,nil,nil],
-                   [nil,nil,nil,nil,nil,  4,nil,  3,nil]]
-  b.set_numbers(numbers_array)
-  puts b
-
-  solver = BacktrackSolver.new(b)
-  solver.solve
-
-  puts b
-  if b.solved?
-    puts "#### SOLVED ####"
-  else
-    puts "#### NOT SOLVED ####"
-  end
-
 end
