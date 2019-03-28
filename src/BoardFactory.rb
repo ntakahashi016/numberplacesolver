@@ -7,11 +7,11 @@ require './Board'
 
 class StandardBoardFactory < Factory
   def generate(n)
-    board           = Board.new(n)
-    cells           = []
-    constraints     = []
-    constraint_size = Integer.sqrt(n)
-    unless constraint_size ** 2 == n
+    board       = Board.new(n)
+    cells       = []
+    constraints = []
+    box_size    = Integer.sqrt(n)
+    unless box_size ** 2 == n
       raise "Class:#{self.class.name}##{__method__} 指定したサイズ(#{n})では盤面を生成できません。平方根が整数となる数値を使用してください"
     end
 
@@ -42,13 +42,13 @@ class StandardBoardFactory < Factory
       constraints.push(constraint)
     end
     # Box領域にCellを登録
-    for i in 0...(n/constraint_size) do
-      for j in 0...(n/constraint_size) do
+    for i in 0...(n/box_size) do
+      for j in 0...(n/box_size) do
         constraint = Constraint.new(n)
-        for k in 0...constraint_size do
-          for l in 0...constraint_size do
-            y = (i*constraint_size) + k
-            x = (j*constraint_size) + l
+        for k in 0...box_size do
+          for l in 0...box_size do
+            y = (i*box_size) + k
+            x = (j*box_size) + l
             constraint.add(cells[y][x])          rescue puts "WARNIG:" + $!.message
             cells[y][x].add_observer(constraint) rescue puts "WARNIG:" + $!.message
           end
