@@ -2,7 +2,6 @@
 require 'qml'
 require './BoardFactory'
 require './BacktrackSolver'
-require './StandardSolver'
 require 'benchmark'
 
 class NumberPlaceSolver
