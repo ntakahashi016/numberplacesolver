@@ -1,7 +1,6 @@
 # coding: utf-8
 
 require './Solver'
-require './Board'
 
 class BacktrackSolver < Solver
 
