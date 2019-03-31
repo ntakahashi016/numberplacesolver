@@ -6,7 +6,7 @@ require './Cell'
 # 通常のナンプレで横9マス、縦9マス、3x3マスの領域に該当し、
 # 領域内の数字に重複がないことをチェックする
 class Constraint
-  attr_reader :candidates
+  attr_reader :cells,:candidates
 
   def initialize(n_max)
     @cells      = []               # 領域内のセルの集合
@@ -34,6 +34,10 @@ class Constraint
     nil
   end
 
+  def include?(cell)
+    raise TypeError unless cell.class == Cell
+    @cells.include?(cell)
+  end
   # solved?
   # 制約が充足されているかどうかを返す
   # 未確定の数字がなければtrue

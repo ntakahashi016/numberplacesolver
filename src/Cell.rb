@@ -3,29 +3,48 @@
 require './Constraint'
 
 class Cell
-  attr_reader :x,:y,:n,:candidates
+  attr_reader :x,:y,:n,:candidates,\
+              :row_constraints,:col_constraints,:box_constraints,:extra_constraints
 
   def initialize(x,y,n_max)
     @x          = x                # X座標
     @y          = y                # Y座標
     @n_max      = n_max            # 数字の最大値
     @n          = nil              # 数字
-    @observers  = []               # 変更通知対象
+    @row_constraints = []
+    @col_constraints = []
+    @box_constraints = []
+    @extra_constraints = []
+    @constraints = [@row_constraints, @col_constraints, @box_constraints, @extra_constraints]
     @candidates = (1..@n_max).to_a # 入りうる数字の候補
   end
 
-  # add_observer
-  # observer(Constraintオブジェクト)を追加する
-  def add_observer(constraint)
+  # add_constraint
+  # 制約(Constraintオブジェクト)を追加する
+  def add_constraint(constraint,type=:extra)
     raise TypeError unless constraint.class==Constraint
-    @observers.push(constraint)
+    raise TypeError unless type.class==Symbol
+    case type
+    when :row
+      @row_constraints.push(constraint)
+    when :col
+      @col_constraints.push(constraint)
+    when :box
+      @box_constraints.push(constraint)
+    when :extra
+      @extra_constraints.push(constraint)
+    else
+      raise
+    end
   end
 
-  # notify_observers
-  # observerに変更があったことを通知する
-  def notify_observers()
-    @observers.each do |constraint|
-    constraint.notify rescue raise
+  # notify_constraints
+  # constraintに変更があったことを通知する
+  def notify_constraints()
+    @constraints.each do |constraints|
+      constraints.each do |constraint|
+        constraint.notify rescue raise
+      end
     end
   end
 
@@ -35,20 +54,36 @@ class Cell
     raise TypeError  unless (n.class==Integer) || (n.class==NilClass)
     raise RangeError unless (1..@n_max).include?(n) || n==nil
     @n = n
-    self.notify_observers rescue raise
+    self.notify_constraints rescue raise
     self.update_candidates
   end
 
   def update_candidates
     if @n == nil
       @candidates = (1..@n_max).to_a
-      @observers.each do |constraint|
-        @candidates &= constraint.candidates
+      @constraints.each do |constraints|
+        constraints.each do |constraint|
+          @candidates &= constraint.candidates
+        end
       end
     else
       @candidates = []
     end
     nil
+  end
+
+  def delete_candidates(candidates)
+    raise TypeError unless candidates.class==Array
+    raise TypeError unless candidates.all? { |c| c.class==Integer }
+    @candidates -= candidates
+  end
+
+  def to_s
+    {x: @x, y: @y, n: @n, candidates: @candidates}.to_s
+  end
+
+  def inspect
+    to_s
   end
 end
 

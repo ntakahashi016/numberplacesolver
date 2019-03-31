@@ -27,8 +27,8 @@ class StandardBoardFactory < Factory
     for y in 0...n do
       constraint = Constraint.new(n)
       for x in  0...n do
-        constraint.add(cells[y][x])          rescue puts "WARNIG:" + $!.message
-        cells[y][x].add_observer(constraint) rescue puts "WARNIG:" + $!.message
+        constraint.add(cells[y][x])                 rescue puts "WARNIG:" + $!.message
+        cells[y][x].add_constraint(constraint,:row) rescue puts "WARNIG:" + $!.message
       end
       constraints.push(constraint)
     end
@@ -36,8 +36,8 @@ class StandardBoardFactory < Factory
     for x in 0...n do
       constraint = Constraint.new(n)
       for y in 0...n do
-        constraint.add(cells[y][x])          rescue puts "WARNIG:" + $!.message
-        cells[y][x].add_observer(constraint) rescue puts "WARNIG:" + $!.message
+        constraint.add(cells[y][x])                 rescue puts "WARNIG:" + $!.message
+        cells[y][x].add_constraint(constraint,:col) rescue puts "WARNIG:" + $!.message
       end
       constraints.push(constraint)
     end
@@ -49,8 +49,8 @@ class StandardBoardFactory < Factory
           for l in 0...box_size do
             y = (i*box_size) + k
             x = (j*box_size) + l
-            constraint.add(cells[y][x])          rescue puts "WARNIG:" + $!.message
-            cells[y][x].add_observer(constraint) rescue puts "WARNIG:" + $!.message
+            constraint.add(cells[y][x])                 rescue puts "WARNIG:" + $!.message
+            cells[y][x].add_constraint(constraint,:box) rescue puts "WARNIG:" + $!.message
           end
         end
         constraints.push(constraint)
@@ -70,14 +70,14 @@ class DiagonalBoardFactory < StandardBoardFactory
     constraints = board.get_constraints
     constraint = Constraint.new(n)
     (0...n).to_a.zip((0...n).to_a).each do |x,y|
-      constraint.add(cells[y][x])          rescue puts "WARNIG:" + $!.message
-      cells[y][x].add_observer(constraint) rescue puts "WARNIG:" + $!.message
+      constraint.add(cells[y][x])                   rescue puts "WARNIG:" + $!.message
+      cells[y][x].add_constraint(constraint,:extra) rescue puts "WARNIG:" + $!.message
     end
     constraints.push(constraint)
     constraint = Constraint.new(n)
     (0...n).to_a.zip((0...n).to_a.reverse).each do |x,y|
-      constraint.add(cells[y][x])          rescue puts "WARNIG:" + $!.message
-      cells[y][x].add_observer(constraint) rescue puts "WARNIG:" + $!.message
+      constraint.add(cells[y][x])                   rescue puts "WARNIG:" + $!.message
+      cells[y][x].add_constraint(constraint,:extra) rescue puts "WARNIG:" + $!.message
     end
     constraints.push(constraint)
     board.set_cells(cells)

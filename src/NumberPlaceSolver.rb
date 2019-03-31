@@ -2,6 +2,7 @@
 require 'qml'
 require './BoardFactory'
 require './BacktrackSolver'
+require './StandardSolver'
 require 'benchmark'
 
 class NumberPlaceSolver
@@ -24,7 +25,8 @@ class NumberPlaceSolver
     # Boardが受付可能な形式にセルの配列を変換する
     numbers = gen_numbers(cellarray)
     @@board.set_numbers(numbers)
-    @@solver = BacktrackSolver.new(@@board)
+    # @@solver = BacktrackSolver.new(@@board)
+    @@solver = StandardSolver.new(@@board)
     # qml側に値を戻さない
     nil
   end
@@ -43,7 +45,14 @@ class NumberPlaceSolver
     puts "#{self.class.name}##{__method__} called."
     puts @@board
     result_time = Benchmark.realtime do
-      @@solver.solve
+      begin
+        @@solver.solve
+      rescue => e
+        puts "#### #{@@solver.class.name}では問題を解けませんでした"
+        @@solver = BacktrackSolver.new(@@board)
+        puts "#### #{@@solver.class.name}に問題を引き継ぎます"
+        @@solver.solve
+      end
     end
     puts "## 処理時間:#{result_time}s"
     puts @@board
