@@ -90,8 +90,13 @@ class NumberPlaceSolver
 
   def save_as(path, cell_array)
     puts "#{self.class.name}##{__method__} #{path}"
+    numbers = gen_numbers(cell_array)
     begin
-      CSV.generate(path) { |csv| csv << cell_array }
+      CSV.open(path, "w") do |csv|
+        numbers.each do |row|
+          csv << row
+        end
+      end
     rescue => e
       puts e.message
       return false
