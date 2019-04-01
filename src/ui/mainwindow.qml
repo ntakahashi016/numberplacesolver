@@ -1,15 +1,20 @@
 import QtQuick 2.3
-import QtQuick.Controls 1.1
+import QtQuick.Controls 1.4
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Layouts 1.1
 import NumberPlaceSolver 1.0
+import './'
 
 ApplicationWindow {
+	id: _mainwindow
 	visible: true
 	width: 500
 	height: 600
 
 	property int currentIndex: -1 /*選択中のセルのインデックス。負数は未選択状態*/
+	property bool fileOpened: false /*現在ファイルを開いた状態かどうかを示す*/
+	property string currentFile: "" /*現在開いているファイルのパス*/
+
 	property var result: new Array /*Solverから受け取った解を保存する*/
 
 	/* セルの数を取得する */
@@ -206,9 +211,76 @@ ApplicationWindow {
 		}
 	}
 
+	menuBar: MenuBar {
+		Menu {
+			title: "File"
+			MenuItem {
+				text: "New"
+				shortcut: "Ctrl+n"
+				onTriggered: {
+					clearAllCell()
+					_mainwindow.fileOpened = false
+					_mainwindow.currentFile = ""
+				}
+			}
+			MenuItem {
+				text: "Open"
+				shortcut: "Ctrl+o"
+				onTriggered: {
+					_OpenWindow.show()
+					_OpenWindow.requestActivate()
+				}
+			}
+			MenuItem {
+				text: "Save"
+				shortcut: "Ctrl+s"
+				onTriggered: {
+					if (_mainwindow.fileOpened == true) {
+						nps.save_as(_mainwindow.currentFile, getCellArray())
+					} else {
+						_SaveAsWindow.show()
+						_SaveAsWindow.requestActivate()
+					}
+				}
+			}
+			MenuItem {
+				text: "Save as"
+				onTriggered: {
+					_SaveAsWindow.show()
+					_SaveAsWindow.requestActivate()
+				}
+			}
+		}
+	}
+
+	OpenWindow {
+		id: _OpenWindow
+		onExecOpen: {
+			result = nps.open(path)
+			if (result != []) {
+				_mainwindow.fileOpened = true
+				_mainwindow.currentFile = path
+				setCellArray(result)
+			} else {
+				console.log("ファイルを開けませんでした", path)
+			}
+		}
+	}
+
+	SaveAsWindow {
+		id: _SaveAsWindow
+		onExecSave: {
+			if (nps.save_as(path, getCellArray())) {
+				_mainwindow.fileOpened = true
+				_mainwindow.currentFile = path
+			} else {
+				console.log("ファイルを保存できませんでした", path)
+			}
+		}
+	}
+
 	/* NumberPlaceSolverの実体をエレメント化 */
 	NumberPlaceSolver {
 		id: nps
 	}
 }
-

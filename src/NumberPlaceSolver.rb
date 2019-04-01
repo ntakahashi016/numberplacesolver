@@ -1,5 +1,6 @@
 # coding: utf-8
 require 'qml'
+require 'csv'
 require './BoardFactory'
 require './BacktrackSolver'
 require './StandardSolver'
@@ -87,6 +88,27 @@ class NumberPlaceSolver
     self.panel_x      = Integer.sqrt(n)
   end
 
+  def save_as(path, cell_array)
+    puts "#{self.class.name}##{__method__} #{path}"
+    begin
+      CSV.generate(path) { |csv| csv << cell_array }
+    rescue => e
+      puts e.message
+      return false
+    end
+    true
+  end
+
+  def open(path)
+    puts "#{self.class.name}##{__method__} #{path}"
+    begin
+      csv_data = CSV.read(path)
+    rescue => e
+      puts e.message
+      return []
+    end
+    csv_data.flatten
+  end
 end
 
 # アプリケーション実行
