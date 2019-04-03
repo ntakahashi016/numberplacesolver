@@ -8,8 +8,8 @@ import './'
 ApplicationWindow {
 	id: _mainwindow
 	visible: true
-	width: 500
-	height: 600
+	width: 600
+	height: 500
 
 	property int currentIndex: -1 /*選択中のセルのインデックス。負数は未選択状態*/
 	property bool fileOpened: false /*現在ファイルを開いた状態かどうかを示す*/
@@ -67,7 +67,11 @@ ApplicationWindow {
 	/* １次元の配列からすべてのセルを入力する */
 	function setCellArray(cellarray) {
 		for (var i=0; i<getCellCount(); i++) {
-			_CellAreas.itemAt(i).text = cellarray[i];
+			if (cellarray[i]==null) {
+				_CellAreas.itemAt(i).text = ""
+			} else {
+				_CellAreas.itemAt(i).text = cellarray[i];
+			}
 		}
 	}
 
@@ -174,12 +178,12 @@ ApplicationWindow {
 				}
 			}
 			GroupBox {
-				title: "Type of Board"
+				title: "Number type"
 				RowLayout {
-					ExclusiveGroup { id: typeOfBoardGroup }
+					ExclusiveGroup { id: numberTypeGroup }
 					RadioButton {
 						text: "4x4"
-						exclusiveGroup: typeOfBoardGroup
+						exclusiveGroup: numberTypeGroup
 						onClicked: {
 							nps.setBoardType(4)
 						}
@@ -187,25 +191,73 @@ ApplicationWindow {
 					RadioButton {
 						text: "9x9"
 						checked: true
-						exclusiveGroup: typeOfBoardGroup
+						exclusiveGroup: numberTypeGroup
 						onClicked: {
 							nps.setBoardType(9)
 						}
 					}
 					RadioButton {
 						text: "16x16"
-						exclusiveGroup: typeOfBoardGroup
+						exclusiveGroup: numberTypeGroup
 						onClicked: {
 							nps.setBoardType(16)
 						}
 					}
 				}
 			}
-			CheckBox {
-				id: _diagonal
-				text: "Diagonal"
-				onClicked: {
-					nps.set_diagonal_type(_diagonal.checked)
+			GroupBox {
+				title: "Board type"
+				RowLayout {
+					ExclusiveGroup { id: boardTypeGroup }
+					RadioButton {
+						text: "Standard"
+						checked: true
+						exclusiveGroup: boardTypeGroup
+						onClicked: {
+							nps.select_board_factory("standard")
+						}
+					}
+					RadioButton {
+						text: "Diagonal"
+						exclusiveGroup: boardTypeGroup
+						onClicked: {
+							nps.select_board_factory("diagonal")
+						}
+					}
+					RadioButton {
+						text: "Union"
+						exclusiveGroup: boardTypeGroup
+						onClicked: {
+							nps.select_board_factory("union")
+						}
+					}
+				}
+			}
+			GroupBox {
+				title: "UnionBoard options"
+				RowLayout {
+					Text { text: "Level" }
+					ComboBox {
+						currentIndex: 0
+						model: ListModel {
+							id: _unionLevel
+							ListElement { text: "1" }
+							ListElement { text: "2" }
+							ListElement { text: "3" }
+						}
+						onCurrentIndexChanged: nps.set_union_level(_unionLevel.get(currentIndex).text)
+					}
+					Text { text: "Num"}
+					ComboBox {
+						currentIndex: 0
+						model: ListModel {
+							id: _unionBoardNum
+							ListElement { text: "1" }
+							ListElement { text: "2" }
+							ListElement { text: "3" }
+						}
+						onCurrentIndexChanged: nps.set_union_num(_unionBoardNum.get(currentIndex).text)
+					}
 				}
 			}
 		}

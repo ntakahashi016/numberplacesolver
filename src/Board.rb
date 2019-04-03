@@ -36,7 +36,7 @@ class Board
   def get_empty_cells
     cells = @cells.map do |row|
       row.map do |cell|
-        (cell.n==nil) ? cell : nil
+        (cell.n==nil) ? cell : nil unless cell==nil
       end
     end
     cells.flatten.compact
@@ -56,7 +56,7 @@ class Board
   # x,y座標で値を設定する
   def set_number(x,y,n)
     begin
-      @cells[y][x].n = n
+      @cells[y][x].n = n unless @cells[y][x]==nil
       update_candidates
     rescue RangeError => e
       raise e
@@ -75,7 +75,7 @@ class Board
     numbers.each_with_index do |row,y|
       row.each_with_index do |n,x|
         begin
-          set_number(x,y,n)
+          set_number(x,y,n) unless @cells[y][x]==nil
         rescue TypeError => e
           puts e.message
         rescue RangeError => e
@@ -91,7 +91,11 @@ class Board
   # get_number
   # x,y座標で値を取得する
   def get_number(x,y)
-    @cells[y][x].n
+    if @cells[y][x]==nil
+      nil
+    else
+      @cells[y][x].n
+    end
   end
 
   def get_numbers()
@@ -108,7 +112,7 @@ class Board
   def update_candidates()
     for y in 0...@y_size do
       for x in 0...@x_size do
-        @cells[y][x].update_candidates
+        @cells[y][x].update_candidates unless @cells[y][x]==nil
       end
     end
     nil
@@ -122,11 +126,15 @@ class Board
       str << "+--" * @x_size  + "+\n"
       for x in 0...@x_size do
         str << "|"
+        if @cells[y][x] == nil
+          str << "xx"
+        else
         num = get_number(x,y)
         if num == nil
           str << "  "
         else
           str << sprintf("%2d",num)
+        end
         end
       end
       str << "|\n"
