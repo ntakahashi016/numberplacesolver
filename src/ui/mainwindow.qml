@@ -292,8 +292,8 @@ ApplicationWindow {
 					color: "transparent"
 					border.width: frameWidth
 					border.color: "#000000"
-					width: (cellAreaWidth + _CellAreasGrid.columnSpacing) * _FrameGrid.columns + frameWidth
-					height: (cellAreaHeight + _CellAreasGrid.rowSpacing) * _FrameGrid.columns + frameWidth
+					width: (cellAreaWidth + _CellAreasGrid.columnSpacing) * Math.sqrt(_Frames.model) + frameWidth
+					height: (cellAreaHeight + _CellAreasGrid.rowSpacing) * Math.sqrt(_Frames.model) + frameWidth
 				}
 			}
 		}
