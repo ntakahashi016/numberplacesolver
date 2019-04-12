@@ -252,6 +252,7 @@ ApplicationWindow {
 				RowLayout {
 					Text { text: "Level" }
 					ComboBox {
+						id: _unionLevelComboBox
 						currentIndex: 0
 						model: ListModel {
 							id: _unionLevel
@@ -263,6 +264,7 @@ ApplicationWindow {
 					}
 					Text { text: "Num"}
 					ComboBox {
+						id: _unionBoardNumComboBox
 						currentIndex: 0
 						model: ListModel {
 							id: _unionBoardNum
@@ -281,19 +283,22 @@ ApplicationWindow {
 			anchors.topMargin: -frameWidth
 			anchors.left: _CellAreasGrid.left
 			anchors.leftMargin: -frameWidth
-			columns: Math.sqrt(_Frames.model)
+			property int ulevel : Number(_unionLevel.get(_unionLevelComboBox.currentIndex).text)
+			property int ubnum  : Number(_unionBoardNum.get(_unionBoardNumComboBox.currentIndex).text)
+			property int sqrtFrameNum: Math.sqrt(nps.num_type)
+			columns: sqrtFrameNum + (sqrtFrameNum - ulevel) * (ubnum - 1)
 			columnSpacing: -frameWidth
 			rowSpacing: -frameWidth
 			Repeater {
 				id: _Frames
-				model: nps.num_of_cells / nps.board_x
+				model: nps.num_of_cells / nps.num_type
 				Rectangle{
 					id: _Frame
 					color: "transparent"
 					border.width: frameWidth
 					border.color: "#000000"
-					width: (cellAreaWidth + _CellAreasGrid.columnSpacing) * Math.sqrt(_Frames.model) + frameWidth
-					height: (cellAreaHeight + _CellAreasGrid.rowSpacing) * Math.sqrt(_Frames.model) + frameWidth
+					width: (cellAreaWidth + _CellAreasGrid.columnSpacing) * Math.sqrt(nps.num_type) + frameWidth
+					height: (cellAreaHeight + _CellAreasGrid.rowSpacing) * Math.sqrt(nps.num_type) + frameWidth
 				}
 			}
 		}
