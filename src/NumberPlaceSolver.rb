@@ -93,22 +93,26 @@ class NumberPlaceSolver
 
   # 対象の問題の種類を設定する
   def setBoardType(n)
-    self.board_x      = n.to_i + (n - Integer.sqrt(n) * self.union_level) * (self.union_num - 1)
-    self.num_of_cells = (self.board_x**2).to_i
-    self.num_type     = n.to_i
+    n = n.to_i
+    # GUI描画に影響するため計算順序に注意
+    self.num_of_cells = (n + (n - Integer.sqrt(n) * self.union_level) * (self.union_num - 1))**2
+    self.board_x      = n + (n - Integer.sqrt(n) * self.union_level) * (self.union_num - 1)
+    self.num_type     = n
     self.panel_x      = Integer.sqrt(n)
   end
 
   def set_union_level(level_str)
+    # GUI描画に影響するため計算順序に注意
     self.union_level = level_str.to_i
+    self.num_of_cells = (self.num_type + (self.num_type - Integer.sqrt(self.num_type) * self.union_level) * (self.union_num - 1))**2
     self.board_x      = self.num_type + (self.num_type - Integer.sqrt(self.num_type) * self.union_level) * (self.union_num - 1)
-    self.num_of_cells = (self.board_x**2).to_i
   end
 
   def set_union_num(num_str)
+    # GUI描画に影響するため計算順序に注意
     self.union_num = num_str.to_i
+    self.num_of_cells = (self.num_type + (self.num_type - Integer.sqrt(self.num_type) * self.union_level) * (self.union_num - 1))**2
     self.board_x      = self.num_type + (self.num_type - Integer.sqrt(self.num_type) * self.union_level) * (self.union_num - 1)
-    self.num_of_cells = (self.board_x**2).to_i
   end
 
   def save_as(path, cell_array)
