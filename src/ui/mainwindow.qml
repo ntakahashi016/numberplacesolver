@@ -14,6 +14,9 @@ ApplicationWindow {
 	property int currentIndex: -1 /*選択中のセルのインデックス。負数は未選択状態*/
 	property bool fileOpened: false /*現在ファイルを開いた状態かどうかを示す*/
 	property string currentFile: "" /*現在開いているファイルのパス*/
+	property int cellAreaWidth: 30
+	property int cellAreaHeight: 30
+	property int frameWidth: 2
 
 	property var result: new Array /*Solverから受け取った解を保存する*/
 
@@ -76,15 +79,23 @@ ApplicationWindow {
 	}
 
 	RowLayout {
+		id: _MainContents
 		GridLayout {
+			id: _CellAreasGrid
 			columns: nps.board_x
+			columnSpacing: frameWidth
+			rowSpacing: frameWidth
+			anchors.top: parent.top
+			anchors.topMargin: 10
+			anchors.left: parent.left
+			anchors.leftMargin: 10
 			Repeater {
 				id: _CellAreas
 				model: nps.num_of_cells
 				MouseArea{
 					id: _CellArea
-					width: 30
-					height: 30
+					width: cellAreaWidth
+					height: cellAreaHeight
 					hoverEnabled: true
 					property alias text: _label.text
 					property bool checked: false
@@ -100,8 +111,7 @@ ApplicationWindow {
 					Rectangle {
 						id: _bg
 						anchors.fill: parent
-						border.width: 1
-						border.color: "#dddddd"
+						border.width: 0
 						Text{
 							id: _label
 							anchors.centerIn: parent
@@ -119,14 +129,6 @@ ApplicationWindow {
 							}
 						}
 						, State {
-							name: "Hover"
-							when: _CellArea.containsMouse
-							PropertyChanges {
-								target: _bg
-								color: "#8888dd"
-							}
-						}
-						, State {
 							name: "Checked"
 							when: checked
 							PropertyChanges {
@@ -135,11 +137,23 @@ ApplicationWindow {
 								border.color: "#FF0000"
 							}
 						}
+						, State {
+							name: "Hover"
+							when: _CellArea.containsMouse
+							PropertyChanges {
+								target: _bg
+								color: "#8888dd"
+							}
+						}
 					]
 				}
 			}
 		}
 		ColumnLayout {
+			anchors.top: parent.top
+			anchors.topMargin: 10
+			anchors.left: _CellAreasGrid.right
+			anchors.leftMargin: 10
 			GridLayout {
 				columns: nps.panel_x
 				Repeater {
@@ -258,6 +272,28 @@ ApplicationWindow {
 						}
 						onCurrentIndexChanged: nps.set_union_num(_unionBoardNum.get(currentIndex).text)
 					}
+				}
+			}
+		}
+		GridLayout {
+			id: _FrameGrid
+			anchors.top: _CellAreasGrid.top
+			anchors.topMargin: -frameWidth
+			anchors.left: _CellAreasGrid.left
+			anchors.leftMargin: -frameWidth
+			columns: Math.sqrt(_Frames.model)
+			columnSpacing: -frameWidth
+			rowSpacing: -frameWidth
+			Repeater {
+				id: _Frames
+				model: nps.num_of_cells / nps.board_x
+				Rectangle{
+					id: _Frame
+					color: "transparent"
+					border.width: frameWidth
+					border.color: "#000000"
+					width: (cellAreaWidth + _CellAreasGrid.columnSpacing) * _FrameGrid.columns + frameWidth
+					height: (cellAreaHeight + _CellAreasGrid.rowSpacing) * _FrameGrid.columns + frameWidth
 				}
 			}
 		}
