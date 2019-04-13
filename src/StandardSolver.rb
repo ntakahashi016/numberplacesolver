@@ -29,10 +29,14 @@ class StandardSolver < Solver
       when :hidden_single
         # HiddenSingle ある数字が一つの領域で配置できるマスが一つに限られる場合、そこに入る数字が確定する
         changed = fix_hidden_single
-        state = changed ? :init : :narrow_down_by_linear_candidates
-      when :narrow_down_by_linear_candidates
-        # 直線状に並んだ候補を検出し、その行または列から候補を排除する
-        changed = narrow_down_by_linear_candidates
+        state = changed ? :init : :locked_candidates_type1
+      when :locked_candidates_type1
+        # LockedCandidates1 直線状に並んだ候補を検出し、その行または列から候補を排除する
+        changed = remove_locked_candidates_type1
+        state = changed ? :init : :fail
+      when :locked_candidates_type2
+        # LockedCandiddates2 ある数字が一つの行または列で配置可能なマスが1つのボックスに限られる場合、そのボックスの他の行または列から候補を排除する
+        changed = remove_locked_candidates_type2
         state = changed ? :init : :fail
       when :fail
         raise "問題を解けませんでした"
@@ -109,7 +113,6 @@ class StandardSolver < Solver
     # HiddenSingle ある数字が一つの領域で配置できるマスが一つに限られる場合、そこに入る数字が確定する
     result = false
     cells = @board.get_empty_cells
-    puts @board.to_s
     cells.each do |cell|
       # いずれかの領域で数字を確定できたらresultをtrueにする
       target_cells = cells & cell.row_constraints.inject([]) { |a,c| a |= c.cells }
@@ -142,16 +145,16 @@ class StandardSolver < Solver
     result
   end
 
-  def narrow_down_by_linear_candidates
+  def remove_locked_candidates_type1
     # 同一領域(ボックス)内で直線状に並んだ候補があれば他の領域(ボックス)におけるその行または列から候補を排除できる
     result = false
     cells = @board.get_empty_cells
     i = 0
     j = 0
     for i in 0...(cells.size-1) do
-      same_row_candidates   = [] # 同一行に属する候補
-      same_col_candidates   = [] # 同一列に属する候補
-      non_linear_candidates = [] # 直線上にない候補
+      same_row_candidates = [] # 同一行に属する候補
+      same_col_candidates = [] # 同一列に属する候補
+      other_candidates    = [] # 直線上にない候補
       for j in 0...cells.size do
         # i==jのとき同一のCellをチェックすることになるため無視する
         next if i==j
@@ -166,17 +169,17 @@ class StandardSolver < Solver
           same_col_candidates |= cells[i].candidates & cells[j].candidates
         else
           # cells[i]とcells[j]が同一の行または列に属さない場合の共通の候補を保存する
-          non_linear_candidates |= cells[j].candidates
+          other_candidates |= cells[j].candidates
         end
         # 演算用に一時保存する
         tmp_same_row_candidates = same_row_candidates
         tmp_same_col_candidates = same_col_candidates
         # 同一の行にある共通の候補だが、同一の行以外にも属しているものを排除する
-        same_row_candidates   -= tmp_same_col_candidates | non_linear_candidates
+        same_row_candidates   -= tmp_same_col_candidates | other_candidates
         # 同一の列にある共通の候補だが、同一の列以外にも属しているものを排除する
-        same_col_candidates   -= tmp_same_row_candidates | non_linear_candidates
+        same_col_candidates   -= tmp_same_row_candidates | other_candidates
         # 同一の行、同一の列双方に属する場合、直線状でない候補として保存する
-        non_linear_candidates |= tmp_same_row_candidates & tmp_same_col_candidates
+        other_candidates |= tmp_same_row_candidates & tmp_same_col_candidates
       end
       row_constraints = cells[i].row_constraints
       col_constraints = cells[i].col_constraints
@@ -209,6 +212,11 @@ class StandardSolver < Solver
       end
     end
     # 候補の絞り込みに成功すればtrueを返す
+    result
+  end
+
+  def remove_locked_candidates_type2
+    result = false
     result
   end
 
