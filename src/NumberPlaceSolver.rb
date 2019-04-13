@@ -17,7 +17,7 @@ class NumberPlaceSolver
   property(:union_level) {1}
   property(:union_num) {1}
 
-  @@solver = nil
+  @@solvers = []
   @@board = nil
   @@factory = StandardBoardFactory.new
 
@@ -32,8 +32,6 @@ class NumberPlaceSolver
     # Boardが受付可能な形式にセルの配列を変換する
     numbers = gen_numbers(cellarray)
     @@board.set_numbers(numbers)
-    # @@solver = BacktrackSolver.new(@@board)
-    @@solver = StandardSolver.new(@@board)
     # qml側に値を戻さない
     nil
   end
@@ -52,18 +50,34 @@ class NumberPlaceSolver
     nil
   end
 
+  def select_solver(solver_str)
+    case solver_str.to_sym
+    when :Standard
+      @@solvers = [StandardSolver]
+    when :Backtrack
+      @@solvers = [BacktrackSolver]
+    when :StandardAndBacktrack
+      @@solvers = [StandardSolver, BacktrackSolver]
+    else
+      raise "不明なソルバーです"
+    end
+    nil
+  end
+
   # 問題を解く
   def solve
     puts "#{self.class.name}##{__method__} called."
     puts @@board
     result_time = Benchmark.realtime do
-      begin
-        @@solver.solve
-      rescue => e
-        puts "#### #{@@solver.class.name}では問題を解けませんでした"
-        @@solver = BacktrackSolver.new(@@board)
-        puts "#### #{@@solver.class.name}に問題を引き継ぎます"
-        @@solver.solve
+      @@solvers.each do |solver|
+        s = solver.new(@@board)
+        puts "#### #{s.class.name}で問題を解きます"
+        begin
+          s.solve
+        rescue => e
+          puts "#### #{s.class.name}では問題を解けませんでした"
+          next
+        end
       end
     end
     puts "## 処理時間:#{result_time}s"
