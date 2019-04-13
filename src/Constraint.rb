@@ -18,6 +18,9 @@ class Constraint
   # 領域にマス(Cellオブジェクト)を登録する
   def add(cell)
     raise TypeError unless cell.class == Cell
+    # unless @cells.size < @n_max
+    #   raise "#{self.class.name}##{__method}:Cellはこれ以上追加できません"
+    # end
     @cells.push(cell)
   end
 
