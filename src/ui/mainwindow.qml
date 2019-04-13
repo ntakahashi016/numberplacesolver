@@ -112,6 +112,19 @@ ApplicationWindow {
 						id: _bg
 						anchors.fill: parent
 						border.width: 0
+						color: {
+							var y = Math.floor(index/nps.board_x)
+							var x = index%nps.board_x
+							var n = nps.num_type
+							var box_size = Math.floor(Math.sqrt(nps.num_type))
+							var union_level = nps.union_level
+							if (y < (n+(n-box_size*union_level)*Math.floor(x/(n-box_size*union_level))) &&
+								x < (n+(n-box_size*union_level)*Math.floor(y/(n-box_size*union_level)))) {
+								"#FFFFFF";
+							}else{
+								"#888888";
+							}
+						}
 						Text{
 							id: _label
 							anchors.centerIn: parent
