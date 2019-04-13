@@ -13,7 +13,7 @@ class StandardSolver < Solver
     until @board.solved?
       case state
       when :init
-        state = :last_digit
+        state = :naked_single
       when :last_digit
         # LastDigit ある数字が8つ既に入っている場合、残りの一つが確定する
         changed = fix_last_digit
@@ -47,9 +47,10 @@ class StandardSolver < Solver
   def fix_last_digit
     # LastDigit ある数字が8つ既に入っている場合、残りの一つが確定する
     result = false
-    cells = @board.get_cells
+    cells = @board.get_cells.flatten
     num_count = {}
     cells.each do |cell|
+      next if cell==nil
       unless num_count.member?(cell.n)
         num_count[cell.n] = 0
       end
