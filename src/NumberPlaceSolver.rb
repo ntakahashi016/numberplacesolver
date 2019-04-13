@@ -77,6 +77,7 @@ class NumberPlaceSolver
           s.solve
         rescue => e
           puts "#### #{s.class.name}では問題を解けませんでした"
+          puts e.message
           next
         end
       end

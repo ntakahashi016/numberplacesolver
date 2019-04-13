@@ -30,7 +30,7 @@ class Board
   end
 
   def get_cells
-    @cells
+    @cells.flatten
   end
 
   def get_empty_cells

@@ -13,9 +13,15 @@ class StandardSolver < Solver
     until @board.solved?
       case state
       when :init
+        state = :last_digit
+      when :last_digit
         # LastDigit ある数字が8つ既に入っている場合、残りの一つが確定する
+        changed = fix_last_digit
+        state = changed ? :init : :full_house
+      when :full_house
         # FullHouse ある領域の8つのマスが既に埋まっている場合、残りの一つに入る数字が確定する
-        state = :naked_single
+        changed = fix_full_house
+        state = changed ? :init : :naked_single
       when :naked_single
         # NakedSingle 一つのマスに配置できる数字が一つに限られる場合、そこに入る数字が確定する
         changed = fix_naked_single
@@ -25,6 +31,7 @@ class StandardSolver < Solver
         changed = fix_hidden_single
         state = changed ? :init : :narrow_down_by_linear_candidates
       when :narrow_down_by_linear_candidates
+        # 直線状に並んだ候補を検出し、その行または列から候補を排除する
         changed = narrow_down_by_linear_candidates
         state = changed ? :init : :fail
       when :fail
@@ -37,13 +44,57 @@ class StandardSolver < Solver
 
   private
 
+  def fix_last_digit
+    # LastDigit ある数字が8つ既に入っている場合、残りの一つが確定する
+    result = false
+    cells = @board.get_cells
+    num_count = {}
+    cells.each do |cell|
+      unless num_count.member?(cell.n)
+        num_count[cell.n] = 0
+      end
+      num_count[cell.n] += 1
+    end
+    num_count.each do |number,count|
+      next unless count==(@board.n_max-1)
+      empty_cells = @board.get_empty_cells
+      empty_cells.each do |cell|
+        next unless cell.candidates.include?(number)
+        puts "#####{__method__}:#{cell.x.to_s},#{cell.y.to_s} => #{number.to_s}"
+        @board.set_number(cell.x, cell.y, number)
+        @board.update_candidates
+        puts @board.to_s
+        result = true
+      end
+    end
+    result
+  end
+
+  def fix_full_house
+    # FullHouse ある領域の8つのマスが既に埋まっている場合、残りの一つに入る数字が確定する
+    # NakedSingleの特殊パターンでもあるため、使用しなくてもfix_naked_singleで確定できる
+    result = false
+    cells = @board.get_empty_cells
+    cells.each do |cell|
+      if cell.row_constraints.any? { |c| c.cells.one? { |cell| cell.n == nil } }
+        # (空の)cellの属する領域で空のマスが一つの場合、そのマスの候補(一つしか無いはず)が確定する
+        puts "#####{__method__}:#{cell.x.to_s},#{cell.y.to_s} => #{cell.candidates.first.to_s}"
+        @board.set_number(cell.x, cell.y, cell.candidates.first)
+        @board.update_candidates
+        puts @board.to_s
+        result = true
+      end
+    end
+    result
+  end
+
   def fix_naked_single
     # NakedSingle 一つのマスに配置できる数字が一つに限られる場合、そこに入る数字が確定する
     result = false
     cells = @board.get_empty_cells
     cells.each do |cell|
       if cell.candidates.size == 1
-        puts "#{cell.x.to_s},#{cell.y.to_s} => #{cell.candidates.first}"
+        puts "#####{__method__}:#{cell.x.to_s},#{cell.y.to_s} => #{cell.candidates.first.to_s}"
         @board.set_number(cell.x, cell.y, cell.candidates.first)
         @board.update_candidates
         puts @board.to_s
@@ -80,7 +131,7 @@ class StandardSolver < Solver
       same_candidate_cells = target_cells.map { |c| c if c.candidates.include?(candidate) }
       same_candidate_cells.compact!
       if same_candidate_cells==[cell]
-        puts "#{cell.x.to_s},#{cell.y.to_s} => #{candidate}"
+        puts "#####{__method__}:#{cell.x.to_s},#{cell.y.to_s} => #{candidate.to_s}"
         @board.set_number(cell.x, cell.y, candidate)
         @board.update_candidates
         puts @board.to_s
