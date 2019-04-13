@@ -19,13 +19,13 @@ class StandardSolver < Solver
       when :naked_single
         # NakedSingle 一つのマスに配置できる数字が一つに限られる場合、そこに入る数字が確定する
         changed = fix_naked_single
-        state = changed ? :init : :narrow_down_by_linear_candidates
-      when :narrow_down_by_linear_candidates
-        changed = narrow_down_by_linear_candidates
-        state = changed ? :hidden_single : :fail
+        state = changed ? :init : :hidden_single
       when :hidden_single
         # HiddenSingle ある数字が一つの領域で配置できるマスが一つに限られる場合、そこに入る数字が確定する
         changed = fix_hidden_single
+        state = changed ? :init : :narrow_down_by_linear_candidates
+      when :narrow_down_by_linear_candidates
+        changed = narrow_down_by_linear_candidates
         state = changed ? :init : :fail
       when :fail
         raise "問題を解けませんでした"
@@ -45,6 +45,7 @@ class StandardSolver < Solver
       if cell.candidates.size == 1
         puts "#{cell.x.to_s},#{cell.y.to_s} => #{cell.candidates.first}"
         @board.set_number(cell.x, cell.y, cell.candidates.first)
+        @board.update_candidates
         puts @board.to_s
         result = true
       end
@@ -81,6 +82,7 @@ class StandardSolver < Solver
       if same_candidate_cells==[cell]
         puts "#{cell.x.to_s},#{cell.y.to_s} => #{candidate}"
         @board.set_number(cell.x, cell.y, candidate)
+        @board.update_candidates
         puts @board.to_s
         result = true
       end
@@ -134,10 +136,11 @@ class StandardSolver < Solver
           target_cells = (constraints.first.cells - constraints.last.cells) & cells
           target_cells.each do |cell|
             # 対象のマスの候補から直線状に並んだ候補を削除する
-            cell.delete_candidates(same_row_candidates)
+            prev_candidates = cell.candidates
+            after_candidates = cell.delete_candidates(same_row_candidates)
+            result = true if prev_candidates!=after_candidates
           end
         end
-        result = true
       end
       unless same_col_candidates==[]
         # cells[i]と同一の列に共通の候補がある場合
@@ -146,10 +149,11 @@ class StandardSolver < Solver
           target_cells = (constraints.first.cells - constraints.last.cells) & cells
           target_cells.each do |cell|
             # 対象のマスの候補から直線状に並んだ候補を削除する
-            cell.delete_candidates(same_col_candidates)
+            prev_candidates = cell.candidates
+            after_candidates = cell.delete_candidates(same_col_candidates)
+            result = true if prev_candidates!=after_candidates
           end
         end
-        result = true
       end
     end
     # 候補の絞り込みに成功すればtrueを返す

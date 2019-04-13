@@ -57,7 +57,6 @@ class Board
   def set_number(x,y,n)
     begin
       @cells[y][x].n = n unless @cells[y][x]==nil
-      update_candidates
     rescue RangeError => e
       raise e
     rescue TypeError => e
@@ -85,7 +84,6 @@ class Board
         end
       end
     end
-    update_candidates
   end
 
   # get_number

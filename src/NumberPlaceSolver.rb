@@ -32,6 +32,7 @@ class NumberPlaceSolver
     # Boardが受付可能な形式にセルの配列を変換する
     numbers = gen_numbers(cellarray)
     @@board.set_numbers(numbers)
+    @@board.update_candidates
     # qml側に値を戻さない
     nil
   end

@@ -31,6 +31,7 @@ class BacktrackSolver < Solver
         end
         # 前の処理を取り消す=数字としてnilを設定する
         @board.set_number(prev[:x], prev[:y], nil)
+        @board.update_candidates
         # resumeに前回試行した数字を保存しておく
         resume = prev[:n]
         i -= 1
@@ -40,6 +41,7 @@ class BacktrackSolver < Solver
       stack.push({x: cells[i].x, y: cells[i].y, n: number})
       # 数字を設定する
       @board.set_number(cells[i].x, cells[i].y, number)
+      @board.update_candidates
       # 復帰でないためresumeの値を初期化しておく
       resume = 0
       i += 1
