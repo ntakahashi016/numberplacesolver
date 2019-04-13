@@ -88,7 +88,7 @@ class NumberPlaceSolver
         cell.to_i
       end
     }
-    cellarray = cellarray.each_slice(self.num_type + (self.num_type - Integer.sqrt(self.num_type) * self.union_level)).to_a
+    cellarray = cellarray.each_slice(self.num_type + (self.num_type - Integer.sqrt(self.num_type) * self.union_level) * (self.union_num - 1)).to_a
   end
 
   # 対象の問題の種類を設定する
