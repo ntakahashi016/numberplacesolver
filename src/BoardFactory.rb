@@ -71,13 +71,13 @@ class DiagonalBoardFactory < StandardBoardFactory
     constraint = Constraint.new(n)
     (0...n).to_a.zip((0...n).to_a).each do |x,y|
       constraint.add(cells[y][x])                   rescue puts "WARNIG:" + $!.message
-      cells[y][x].add_constraint(constraint,:extra) rescue puts "WARNIG:" + $!.message
+      cells[y][x].add_constraint(constraint,:falling_diagonal) rescue puts "WARNIG:" + $!.message
     end
     constraints.push(constraint)
     constraint = Constraint.new(n)
     (0...n).to_a.zip((0...n).to_a.reverse).each do |x,y|
       constraint.add(cells[y][x])                   rescue puts "WARNIG:" + $!.message
-      cells[y][x].add_constraint(constraint,:extra) rescue puts "WARNIG:" + $!.message
+      cells[y][x].add_constraint(constraint,:raising_diagonal) rescue puts "WARNIG:" + $!.message
     end
     constraints.push(constraint)
     board.set_cells(cells)
