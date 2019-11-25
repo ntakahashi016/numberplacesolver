@@ -13,7 +13,7 @@ class StandardSolver < Solver
     until @board.solved?
       case state
       when :init
-        state = :naked_single
+        state = :last_digit
       when :last_digit
         # LastDigit ある数字が8つ既に入っている場合、残りの一つが確定する
         changed = fix_last_digit
