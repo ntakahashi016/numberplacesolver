@@ -266,7 +266,6 @@ ApplicationWindow {
 					Text { text: "Level" }
 					ComboBox {
 						id: _unionLevelComboBox
-						currentIndex: 0
 						model: ListModel {
 							id: _unionLevel
 							ListElement { text: "1" }
@@ -278,7 +277,6 @@ ApplicationWindow {
 					Text { text: "Num"}
 					ComboBox {
 						id: _unionBoardNumComboBox
-						currentIndex: 0
 						model: ListModel {
 							id: _unionBoardNum
 							ListElement { text: "1" }
@@ -293,7 +291,6 @@ ApplicationWindow {
 				Text { text: "Solver" }
 				ComboBox {
 					id: _SolverComboBox
-					currentIndex: 0
 					model: ListModel {
 						id: _Solver
 						ListElement { text: "StandardAndBacktrack" }
