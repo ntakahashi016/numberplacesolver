@@ -12,6 +12,7 @@ ApplicationWindow {
 	height: 500
 
 	property int currentIndex: -1 /*選択中のセルのインデックス。負数は未選択状態*/
+    property int currentHoverIndex: -1
 	property bool fileOpened: false /*現在ファイルを開いた状態かどうかを示す*/
 	property string currentFile: "" /*現在開いているファイルのパス*/
 	property int cellAreaWidth: 30
@@ -57,6 +58,26 @@ ApplicationWindow {
 		}
 	}
 
+    function cellEntered(index) {
+        for (var i=0; i<getCellCount(); i++) {
+            if (index == i) {
+			    _CellAreas.itemAt(i).bg.color = "#8888dd"
+            } else if (index%nps.board_x == i%nps.board_x ||
+                       Math.floor(index/nps.board_x) == Math.floor(i/nps.board_x) ||
+                       Math.floor(index/Math.sqrt(nps.board_x))%Math.sqrt(nps.board_x) == Math.floor(i/Math.sqrt(nps.board_x))%Math.sqrt(nps.board_x) &&
+                       Math.floor(Math.floor(index/nps.board_x)/Math.sqrt(nps.board_x)) == Math.floor(Math.floor(i/nps.board_x)/Math.sqrt(nps.board_x))
+                      ) {
+			    _CellAreas.itemAt(i).bg.color = "#bbbbff"
+            }
+        }
+    }
+
+    function cellExited(index) {
+        for (var i=0; i<getCellCount(); i++) {
+            _CellAreas.itemAt(i).bg.color = "#FFFFFF"
+        }
+    }
+
 	/* すべてのセルを１次元の配列として取得する */
 	/* 空のセルは空文字列"" */
 	function getCellArray() {
@@ -98,6 +119,7 @@ ApplicationWindow {
 					height: cellAreaHeight
 					hoverEnabled: true
 					property alias text: _label.text
+                    property alias bg: _bg
 					property bool checked: false
 					onClicked: {
 						if (checked == true) {
@@ -108,6 +130,12 @@ ApplicationWindow {
 						checked = !checked;
 						cellClicked(index);
 					}
+                    onEntered: {
+                        cellEntered(index);
+                    }
+                    onExited: {
+                        cellExited(index);
+                    }
 					Rectangle {
 						id: _bg
 						anchors.fill: parent
@@ -131,34 +159,26 @@ ApplicationWindow {
 							text: ""
 						}
 					}
-					states: [
-						State {
-							name: "Press"
-							when: _CellArea.pressed
-							PropertyChanges {
-								target: _bg
-								color: "#ddaaaa"
-								border.color: "#dd0000"
-							}
-						}
-						, State {
-							name: "Checked"
-							when: checked
-							PropertyChanges {
-								target: _bg
-								border.width: 2
-								border.color: "#FF0000"
-							}
-						}
-						, State {
-							name: "Hover"
-							when: _CellArea.containsMouse
-							PropertyChanges {
-								target: _bg
-								color: "#8888dd"
-							}
-						}
-					]
+			        states: [
+				        State {
+					        name: "Press"
+					        when: _CellArea.pressed
+					        PropertyChanges {
+						        target: _bg
+						        color: "#ddaaaa"
+						        border.color: "#dd0000"
+					        }
+				        }
+				        , State {
+					        name: "Checked"
+					        when: checked
+					        PropertyChanges {
+						        target: _bg
+						        border.width: 2
+						        border.color: "#FF0000"
+					        }
+				        }
+			        ]
 				}
 			}
 		}
