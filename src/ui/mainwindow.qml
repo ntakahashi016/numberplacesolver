@@ -18,6 +18,7 @@ ApplicationWindow {
 	property int cellAreaWidth: 30
 	property int cellAreaHeight: 30
 	property int frameWidth: 2
+    property bool editMode: false
 
 	property var result: new Array /*Solverから受け取った解を保存する*/
 
@@ -29,23 +30,45 @@ ApplicationWindow {
 	/* 選択中のセルの文字列を取得する */
 	function setCurrentCellText(text) {
 		if (currentIndex >= 0) {
-			_CellAreas.itemAt(currentIndex).text = text;
+            if (!_CellAreas.itemAt(currentIndex).locked) {
+			    _CellAreas.itemAt(currentIndex).text = text;
+            }
 		}
 	}
 
 	/* 選択中のセルの文字列を消去する */
 	function clearCurrentCell() {
 		if (currentIndex >= 0) {
-			_CellAreas.itemAt(currentIndex).text = "";
+            if (!_CellAreas.itemAt(currentIndex).locked) {
+			    _CellAreas.itemAt(currentIndex).text = "";
+            }
 		}
 	}
 
 	/* すべてのセルの文字列を消去する */
 	function clearAllCell() {
 		for (var i=0; i<getCellCount(); i++) {
-			_CellAreas.itemAt(i).text = "";
+            if (!_CellAreas.itemAt(i).locked) {
+			    _CellAreas.itemAt(i).text = "";
+            }
 		}
 	}
+
+    function lockInputtedCells() {
+        for (var i=0; i<getCellCount(); i++) {
+            if (_CellAreas.itemAt(i).text != "") {
+                _CellAreas.itemAt(i).locked = true;
+            }
+        }
+    }
+
+    function unlockInputtedCells() {
+        for (var i=0; i<getCellCount(); i++) {
+            if (_CellAreas.itemAt(i).text != "") {
+                _CellAreas.itemAt(i).locked = false;
+            }
+        }
+    }
 
 	/* セルをクリックした際に他のセルの選択状態を解除する */
 	function cellClicked(index) {
@@ -120,6 +143,7 @@ ApplicationWindow {
 					hoverEnabled: true
 					property alias text: _label.text
                     property alias bg: _bg
+                    property alias locked: _label.locked
 					property bool checked: false
 					onClicked: {
 						if (checked == true) {
@@ -156,7 +180,28 @@ ApplicationWindow {
 						Text{
 							id: _label
 							anchors.centerIn: parent
+                            property bool locked: false
 							text: ""
+                            states: [
+                                State {
+                                    name: "Unlocked"
+                                    when: !_label.locked
+                                    PropertyChanges {
+                                        target: _label
+                                        color: "#000000"
+                                        font.bold: false
+                                    }
+                                }
+                                , State {
+                                    name: "Locked"
+                                    when: _label.locked
+                                    PropertyChanges {
+                                        target: _label
+                                        color: "#0000FF"
+                                        font.bold: true
+                                    }
+                                }
+                            ]
 						}
 					}
 			        states: [
@@ -187,33 +232,104 @@ ApplicationWindow {
 			anchors.topMargin: 10
 			anchors.left: _CellAreasGrid.right
 			anchors.leftMargin: 10
+            RowLayout {
+                Button {
+                    id: _editButton
+                    text: "edit"
+                    onClicked: {
+                        unlockInputtedCells()
+                        editMode = true
+                    }
+                    states: [
+                        State {
+                            name: "Editing"
+                            when: editMode
+                            PropertyChanges {
+                                target: _editButton
+                                text: "fix"
+                                onClicked: {
+                                    lockInputtedCells()
+                                    editMode = false
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
 			GridLayout {
 				columns: nps.panel_x
 				Repeater {
 					id: _NumPanel
 					model: nps.num_type
 					Button {
+                        id: _numButton
 						text: index+1
 						property int num: index+1
-						style: ButtonStyle {
-							background: Rectangle {
-								implicitWidth: 50
-							}
-						}
+						implicitWidth: 52
 						onClicked: setCurrentCellText(num)
+                        states: [
+                            State {
+                                name: "disabled"
+                                when: !editMode
+                                PropertyChanges {
+                                    target: _numButton
+                                    enabled: false
+                                }
+                            }
+                        ]
 					}
 				}
 			}
-			Button {
-				text: "clear"
-				onClicked: clearCurrentCell()
-			}
-			RowLayout {
+            RowLayout {
+			    Button {
+                    id: _clearButton
+				    text: "clear"
+				    onClicked: clearCurrentCell()
+                    states: [
+                        State {
+                            name: "disabled"
+                            when: !editMode
+                            PropertyChanges {
+                                target: _clearButton
+                                enabled: false
+                            }
+                        }
+                    ]
+			    }
 				Button {
+                    id: _allClearButton
 					text: "AllClear"
 					onClicked: clearAllCell()
+                    states: [
+                        State {
+                            name: "disabled"
+                            when: !editMode
+                            PropertyChanges {
+                                target: _allClearButton
+                                enabled: false
+                            }
+                        }
+                    ]
+				}
+            }
+			RowLayout {
+				Button {
+                    id: _resetButton
+					text: "Reset"
+					onClicked: clearAllCell()
+                    states: [
+                        State {
+                            name: "disabled"
+                            when: editMode
+                            PropertyChanges {
+                                target: _resetButton
+                                enabled: false
+                            }
+                        }
+                    ]
 				}
 				Button {
+                    id: _solveButton
 					text: "Solve"
 					onClicked: {
 						/* NumberPlaceSolverにセルの配列を与えて解を求める */
@@ -222,6 +338,16 @@ ApplicationWindow {
 						/* 求めた解をセルに戻して表示する */
 						setCellArray(result);
 					}
+                    states: [
+                        State {
+                            name: "disabled"
+                            when: editMode
+                            PropertyChanges {
+                                target: _solveButton
+                                enabled: false
+                            }
+                        }
+                    ]
 				}
 			}
 			GroupBox {
@@ -398,6 +524,8 @@ ApplicationWindow {
 				_mainwindow.fileOpened = true
 				_mainwindow.currentFile = path
 				setCellArray(result)
+                lockInputtedCells()
+                editMode = false
 			} else {
 				console.log("ファイルを開けませんでした", path)
 			}
