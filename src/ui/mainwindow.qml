@@ -62,7 +62,7 @@ ApplicationWindow {
         }
     }
 
-    function unlockInputtedCells() {
+    function unlockAllCells() {
         for (var i=0; i<getCellCount(); i++) {
             if (_CellAreas.itemAt(i).text != "") {
                 _CellAreas.itemAt(i).locked = false;
@@ -237,7 +237,7 @@ ApplicationWindow {
                     id: _editButton
                     text: "edit"
                     onClicked: {
-                        unlockInputtedCells()
+                        unlockAllCells()
                         editMode = true
                     }
                     states: [
@@ -523,6 +523,7 @@ ApplicationWindow {
 			if (result != []) {
 				_mainwindow.fileOpened = true
 				_mainwindow.currentFile = path
+                unlockAllCells()
 				setCellArray(result)
                 lockInputtedCells()
                 editMode = false
