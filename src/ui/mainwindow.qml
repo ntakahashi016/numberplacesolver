@@ -481,6 +481,7 @@ ApplicationWindow {
 				text: "New"
 				shortcut: "Ctrl+n"
 				onTriggered: {
+                    unlockAllCells()
 					clearAllCell()
 					_mainwindow.fileOpened = false
 					_mainwindow.currentFile = ""
