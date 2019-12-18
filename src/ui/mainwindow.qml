@@ -442,6 +442,7 @@ ApplicationWindow {
 						ListElement { text: "StandardAndBacktrack" }
 						ListElement { text: "Standard" }
 						ListElement { text: "Backtrack" }
+                        ListElement { text: "Template" }
 					}
 					onCurrentIndexChanged: nps.select_solver(_Solver.get(currentIndex).text)
 				}

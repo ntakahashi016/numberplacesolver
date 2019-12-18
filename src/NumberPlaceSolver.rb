@@ -4,6 +4,7 @@ require 'csv'
 require './BoardFactory'
 require './BacktrackSolver'
 require './StandardSolver'
+require './TemplateSolver'
 require 'benchmark'
 
 class NumberPlaceSolver
@@ -59,6 +60,8 @@ class NumberPlaceSolver
       @@solvers = [BacktrackSolver]
     when :StandardAndBacktrack
       @@solvers = [StandardSolver, BacktrackSolver]
+    when :Template
+      @@solvers = [TemplateSolver]
     else
       raise "不明なソルバーです"
     end
