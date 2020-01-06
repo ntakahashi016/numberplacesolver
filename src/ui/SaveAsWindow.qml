@@ -28,5 +28,13 @@ ApplicationWindow {
 			}
 		}
 	}
+	onExecSave: {
+		if (nps.save_as(path, getCellArray())) {
+			_mainwindow.fileOpened = true
+			_mainwindow.currentFile = path
+		} else {
+			console.log("ファイルを保存できませんでした", path)
+		}
+	}
 }
 

@@ -28,5 +28,18 @@ ApplicationWindow {
 			}
 		}
 	}
+	onExecOpen: {
+		result = nps.open(path)
+		if (result != []) {
+			_mainwindow.fileOpened = true
+			_mainwindow.currentFile = path
+            unlockAllCells()
+			setCellArray(result)
+            lockInputtedCells()
+            editMode = false
+		} else {
+			console.log("ファイルを開けませんでした", path)
+		}
+	}
 }
 

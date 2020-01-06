@@ -476,75 +476,17 @@ ApplicationWindow {
 	}
 
 	menuBar: MenuBar {
-		Menu {
-			title: "File"
-			MenuItem {
-				text: "New"
-				shortcut: "Ctrl+n"
-				onTriggered: {
-                    unlockAllCells()
-					clearAllCell()
-					_mainwindow.fileOpened = false
-					_mainwindow.currentFile = ""
-				}
-			}
-			MenuItem {
-				text: "Open"
-				shortcut: "Ctrl+o"
-				onTriggered: {
-					_OpenWindow.show()
-					_OpenWindow.requestActivate()
-				}
-			}
-			MenuItem {
-				text: "Save"
-				shortcut: "Ctrl+s"
-				onTriggered: {
-					if (_mainwindow.fileOpened == true) {
-						nps.save_as(_mainwindow.currentFile, getCellArray())
-					} else {
-						_SaveAsWindow.show()
-						_SaveAsWindow.requestActivate()
-					}
-				}
-			}
-			MenuItem {
-				text: "Save as"
-				onTriggered: {
-					_SaveAsWindow.show()
-					_SaveAsWindow.requestActivate()
-				}
-			}
-		}
+        id: _MenuBar
+        FileMenu {
+        }
 	}
 
 	OpenWindow {
 		id: _OpenWindow
-		onExecOpen: {
-			result = nps.open(path)
-			if (result != []) {
-				_mainwindow.fileOpened = true
-				_mainwindow.currentFile = path
-                unlockAllCells()
-				setCellArray(result)
-                lockInputtedCells()
-                editMode = false
-			} else {
-				console.log("ファイルを開けませんでした", path)
-			}
-		}
 	}
 
 	SaveAsWindow {
 		id: _SaveAsWindow
-		onExecSave: {
-			if (nps.save_as(path, getCellArray())) {
-				_mainwindow.fileOpened = true
-				_mainwindow.currentFile = path
-			} else {
-				console.log("ファイルを保存できませんでした", path)
-			}
-		}
 	}
 
 	/* NumberPlaceSolverの実体をエレメント化 */
