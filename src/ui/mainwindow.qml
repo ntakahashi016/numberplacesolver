@@ -408,8 +408,15 @@ ApplicationWindow {
 			}
 			GroupBox {
 				title: "UnionBoard options"
+                enabled: {
+                    if (boardTypeGroup.current.text == "Union") {
+                        true;
+                    } else {
+                        false;
+                    }
+                }
 				RowLayout {
-					Text { text: "Level" }
+					Label { text: "Level" }
 					ComboBox {
 						id: _unionLevelComboBox
 						model: ListModel {
@@ -420,7 +427,7 @@ ApplicationWindow {
 						}
 						onCurrentIndexChanged: nps.set_union_level(_unionLevel.get(currentIndex).text)
 					}
-					Text { text: "Num"}
+					Lavel { text: "Num"}
 					ComboBox {
 						id: _unionBoardNumComboBox
 						model: ListModel {
