@@ -427,7 +427,7 @@ ApplicationWindow {
 						}
 						onCurrentIndexChanged: nps.set_union_level(_unionLevel.get(currentIndex).text)
 					}
-					Lavel { text: "Num"}
+					Label { text: "Num"}
 					ComboBox {
 						id: _unionBoardNumComboBox
 						model: ListModel {
