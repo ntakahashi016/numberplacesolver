@@ -37,6 +37,10 @@ class Constraint
     nil
   end
 
+  def get_empty_cells
+    @cells.select{|c| c.empty? }
+  end
+
   def include?(cell)
     raise TypeError unless cell.class == Cell
     @cells.include?(cell)

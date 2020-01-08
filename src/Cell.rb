@@ -83,6 +83,10 @@ class Cell
     @candidates -= candidates
   end
 
+  def empty?
+    @n == nil
+  end
+
   def to_s
     {x: @x, y: @y, n: @n, candidates: @candidates}.to_s
   end

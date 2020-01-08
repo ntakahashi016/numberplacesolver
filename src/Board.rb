@@ -52,6 +52,10 @@ class Board
     @constraints
   end
 
+  def get_unsolved_constraints
+    @constraints.select{|c| !c.solved? }
+  end
+
   # set_number
   # x,y座標で値を設定する
   def set_number(x,y,n)

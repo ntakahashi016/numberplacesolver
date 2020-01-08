@@ -41,6 +41,10 @@ class StandardSolver < Solver
       when :locked_candidates_type2_col
         # LockedCandiddates2 ある数字が一つの列で配置可能なマスが1つのボックスに限られる場合、そのボックスの他の列から候補を排除する
         changed = remove_locked_candidates_type2_col
+        state = changed ? :init : :hidden_pair
+      when :hidden_pair
+        # Hidden pair 同じ領域で2種類の数字が配置できるマスが同じ2マスに限られる場合、その領域から他の候補を排除する
+        changed = remove_hidden_subsets(2)
         state = changed ? :init : :fail
       when :fail
         raise "問題を解けませんでした"
@@ -392,5 +396,54 @@ class StandardSolver < Solver
     result
   end
 
+  def remove_hidden_subsets(n=2)
+    # Hidden pair 同じ領域で2種類の数字が配置できるマスが同じ2マスに限られる場合、その領域から他の候補を排除する
+    result = false
+    constraints = @board.get_unsolved_constraints
+    constraints.select do |constraint|
+      cells = constraint.get_empty_cells
+      candidates = constraint.candidates
+      cells_by_candidate = {} # 候補をキーとしその候補が入りうるマスの配列を値とするハッシュ
+      candidates.each do |candidate|
+        cells_by_candidate[candidate] = (cells.select{|cell| cell.candidates.include?(candidate) })
+      end
+      common_cells = {} # 候補のペアをキーとしそれらの候補が入りうるマスの配列を値とするハッシュ
+      for i in 2..n do
+        cells_by_candidate.keys.combination(i).each do |pair|
+          cc = nil
+          pair.each do |p|
+            unless cc
+              cc = cells_by_candidate[p]
+              next
+            end
+            cc &= cells_by_candidate[p]
+          end
+          common_cells[pair] = cc
+        end
+      end
+      common_cells.each_key do |key_candidates|
+        # 候補のペアを配置できるマスとそれぞれの候補が配置できるマスが一致するかどうかをチェック
+        check = key_candidates.all? do |key_candidate|
+          if common_cells[key_candidates] == [] || cells_by_candidate[key_candidate] == []
+            false
+          else
+            common_cells[key_candidates] == cells_by_candidate[key_candidate] && common_cells[key_candidates].length == n
+          end
+        end
+        if check
+          common_cells[key_candidates].each do |cell|
+            prev_candidates = cell.candidates
+            target = cell.candidates - key_candidates
+            tmp = cell.candidates
+            next if target == []
+            after_candidates = cell.delete_candidates(target)
+            puts "#####{__method__}(#{n}):#{cell.x.to_s},#{cell.y.to_s} #{prev_candidates} => #{after_candidates}"
+            result = true if prev_candidates != after_candidates
+          end
+        end
+      end
+    end
+    result
+  end
 end
 
