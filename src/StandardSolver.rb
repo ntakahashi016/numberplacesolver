@@ -272,7 +272,6 @@ class StandardSolver < Solver
 
   def remove_locked_candidates_type2_row
     # 同一領域(行または列)内である一つのボックスにのみある候補があれば同ボックス内の他のセルの候補を排除できる
-    puts "#####{__method__}"
     result = false
     cells = @board.get_empty_cells
     i = 0
@@ -280,7 +279,6 @@ class StandardSolver < Solver
     for i in 0...(cells.size-1) do
       same_row_candidates = [] # 同一行に属する候補
       other_row_candidates = [] # 同一行に属するがボックスが異なる候補
-      puts ""
       for j in 0...cells.size do
         # i==jのとき同一のCellをチェックすることになるため無視する
         next if i==j
@@ -290,7 +288,6 @@ class StandardSolver < Solver
         puts "#####{__method__} [#{cells[i].x.to_s},#{cells[i].y.to_s}],[#{cells[j].x.to_s},#{cells[j].y.to_s}]"
         if cells[i].row_constraints.any? { |c| c.include?(cells[j]) }
           # cells[i]と同じ行にcells[j]が属している場合の共通の候補を保存する
-          puts "#####{__method__} same_row"
           same_row_candidates |= cells[i].candidates & cells[j].candidates
         else
           # cells[i]と同じボックスにcells[j]が属しているが、行列ともに異なる場合無視する
@@ -312,7 +309,6 @@ class StandardSolver < Solver
         tmp_same_row_candidates = same_row_candidates
         # 同一の行にある候補だが、異なるボックスにも存在する候補を排除する
         same_row_candidates -= other_row_candidates
-        puts "#####{__method__} row:#{tmp_same_row_candidates} -  #{other_row_candidates} = #{same_row_candidates}"
       end
       row_constraints = cells[i].row_constraints
       box_constraints = cells[i].box_constraints
@@ -336,7 +332,6 @@ class StandardSolver < Solver
 
   def remove_locked_candidates_type2_col
     # 同一領域(行または列)内である一つのボックスにのみある候補があれば同ボックス内の他のセルの候補を排除できる
-    puts "#####{__method__}"
     result = false
     cells = @board.get_empty_cells
     i = 0
@@ -344,17 +339,14 @@ class StandardSolver < Solver
     for i in 0...(cells.size-1) do
       same_col_candidates = [] # 同一列に属する候補
       other_col_candidates = [] # 同一列に属するがボックスが異なる候補
-      puts ""
       for j in 0...cells.size do
         # i==jのとき同一のCellをチェックすることになるため無視する
         next if i==j
         # jのループ内でcells[i]と同一ボックス内にある他のマスをチェックする
         # cells[i]と同一のボックスにcells[j]が属していない場合無視する
         next unless cells[i].box_constraints.any? { |c| c.include?(cells[j]) }
-        puts "#####{__method__} [#{cells[i].x.to_s},#{cells[i].y.to_s}],[#{cells[j].x.to_s},#{cells[j].y.to_s}]"
         if cells[i].col_constraints.any? { |c| c.include?(cells[j]) }
           # cells[i]と同じ列にcells[j]が属している場合の共通の候補を保存する
-          puts "#####{__method__} same_col"
           same_col_candidates |= cells[i].candidates & cells[j].candidates
         else
           # cells[i]と同じボックスにcells[j]が属しているが、行列ともに異なる場合無視する
@@ -376,7 +368,6 @@ class StandardSolver < Solver
         tmp_same_col_candidates = same_col_candidates
         # 同一の列にある候補だが、異なるボックスにも存在する候補を排除する
         same_col_candidates -= other_col_candidates
-        puts "#####{__method__} col:#{tmp_same_col_candidates} - #{other_col_candidates} = #{same_col_candidates}"
       end
       col_constraints = cells[i].col_constraints
       box_constraints = cells[i].box_constraints
