@@ -37,7 +37,7 @@ class StandardBoardFactory < Factory
       constraint = Constraint.new(n)
       for y in 0...n do
         constraint.add(cells[y][x])                 rescue puts "WARNIG:" + $!.message
-        cells[y][x].add_constraint(constraint,:col) rescue puts "WARNIG:" + $!.message
+        cells[y][x].add_constraint(constraint,:cul) rescue puts "WARNIG:" + $!.message
       end
       constraints.push(constraint)
     end
@@ -131,7 +131,7 @@ class UnionBoardFactory < Factory
         for k in 0...n do
           y = k + (n-box_size*union_level) * i
           constraint.add(cells[y][x])                 rescue puts "WARNIG:" + $!.message
-          cells[y][x].add_constraint(constraint,:col) rescue puts "WARNIG:" + $!.message
+          cells[y][x].add_constraint(constraint,:cul) rescue puts "WARNIG:" + $!.message
         end
         constraints.push(constraint)
       end
@@ -142,7 +142,7 @@ class UnionBoardFactory < Factory
         constraint = Constraint.new(n)
         for k in 0...box_size do
           for l in 0...box_size do
-            y = (i*box_size) + k 
+            y = (i*box_size) + k
             x = (j*box_size) + l
             unless cells[y][x] == nil
               constraint.add(cells[y][x])                 rescue puts "WARNIG:" + $!.message

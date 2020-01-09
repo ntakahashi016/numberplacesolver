@@ -4,7 +4,7 @@ require './Constraint'
 
 class Cell
   attr_reader :x,:y,:n,:candidates,\
-              :row_constraints,:col_constraints,:box_constraints,\
+              :row_constraints,:cul_constraints,:box_constraints,\
               :falling_diagonal_constraints,:raising_diagonal_constraints
 
   def initialize(x,y,n_max)
@@ -13,11 +13,11 @@ class Cell
     @n_max      = n_max            # 数字の最大値
     @n          = nil              # 数字
     @row_constraints = []
-    @col_constraints = []
+    @cul_constraints = []
     @box_constraints = []
     @falling_diagonal_constraints = []
     @raising_diagonal_constraints = []
-    @constraints = [@row_constraints, @col_constraints, @box_constraints,\
+    @constraints = [@row_constraints, @cul_constraints, @box_constraints,\
                     @falling_diagonal_constraints, @raising_diagonal_constraints]
     @candidates = (1..@n_max).to_a # 入りうる数字の候補
   end
@@ -30,8 +30,8 @@ class Cell
     case type
     when :row
       @row_constraints.push(constraint)
-    when :col
-      @col_constraints.push(constraint)
+    when :cul
+      @cul_constraints.push(constraint)
     when :box
       @box_constraints.push(constraint)
     when :falling_diagonal

@@ -37,10 +37,10 @@ class StandardSolver < Solver
       when :locked_candidates_type2_row
         # LockedCandiddates2 ある数字が一つの行で配置可能なマスが1つのボックスに限られる場合、そのボックスの他の行から候補を排除する
         changed = remove_locked_candidates_type2_row
-        state = changed ? :init : :locked_candidates_type2_col
-      when :locked_candidates_type2_col
+        state = changed ? :init : :locked_candidates_type2_cul
+      when :locked_candidates_type2_cul
         # LockedCandiddates2 ある数字が一つの列で配置可能なマスが1つのボックスに限られる場合、そのボックスの他の列から候補を排除する
-        changed = remove_locked_candidates_type2_col
+        changed = remove_locked_candidates_type2_cul
         state = changed ? :init : :hidden_pair
       when :hidden_pair
         # Hidden pair 同じ領域で2種類の数字が配置できるマスが同じ2マスに限られる場合、その領域から他の候補を排除する
@@ -126,7 +126,7 @@ class StandardSolver < Solver
       target_cells = cells & cell.row_constraints.inject([]) { |a,c| a |= c.cells }
       result |= __fix_hidden_single(cell,target_cells)
 
-      target_cells = cells & cell.col_constraints.inject([]) { |a,c| a |= c.cells }
+      target_cells = cells & cell.cul_constraints.inject([]) { |a,c| a |= c.cells }
       result |= __fix_hidden_single(cell,target_cells)
 
       target_cells = cells & cell.box_constraints.inject([]) { |a,c| a |= c.cells }
@@ -167,7 +167,7 @@ class StandardSolver < Solver
     j = 0
     for i in 0...(cells.size-1) do
       same_row_candidates = [] # 同一行に属する候補
-      same_col_candidates = [] # 同一列に属する候補
+      same_cul_candidates = [] # 同一列に属する候補
       same_falling_diagonal_candidates = [] # 同一対角線に属する候補
       same_raising_diagonal_candidates = [] # 同一対角線に属する候補
       other_candidates    = [] # 直線上にない候補
@@ -180,9 +180,9 @@ class StandardSolver < Solver
         if cells[i].row_constraints.any? { |c| c.include?(cells[j]) }
           # cells[i]と同じ行にcells[j]が属している場合の共通の候補を保存する
           same_row_candidates |= cells[i].candidates & cells[j].candidates
-        elsif cells[i].col_constraints.any? { |c| c.include?(cells[j]) }
+        elsif cells[i].cul_constraints.any? { |c| c.include?(cells[j]) }
           # cells[i]と同じ列にcells[j]が属している場合の共通の候補を保存する
-          same_col_candidates |= cells[i].candidates & cells[j].candidates
+          same_cul_candidates |= cells[i].candidates & cells[j].candidates
         elsif cells[i].falling_diagonal_constraints.any? { |c| c.include?(cells[j]) }
           # cells[i]と同じ対角線にcells[j]が属している場合の共通の候補を保存する
           same_falling_diagonal_candidates |= cells[i].candidates & cells[j].candidates
@@ -195,27 +195,27 @@ class StandardSolver < Solver
         end
         # 演算用に一時保存する
         tmp_same_row_candidates = same_row_candidates
-        tmp_same_col_candidates = same_col_candidates
+        tmp_same_cul_candidates = same_cul_candidates
         tmp_same_falling_diagonal_candidates = same_falling_diagonal_candidates
         tmp_same_raising_diagonal_candidates = same_raising_diagonal_candidates
         # 同一の行にある共通の候補だが、同一の行以外にも属しているものを排除する
-        same_row_candidates   -= tmp_same_col_candidates | tmp_same_falling_diagonal_candidates | tmp_same_raising_diagonal_candidates | other_candidates
+        same_row_candidates   -= tmp_same_cul_candidates | tmp_same_falling_diagonal_candidates | tmp_same_raising_diagonal_candidates | other_candidates
         # 同一の列にある共通の候補だが、同一の列以外にも属しているものを排除する
-        same_col_candidates   -= tmp_same_row_candidates | tmp_same_falling_diagonal_candidates | tmp_same_raising_diagonal_candidates | other_candidates
+        same_cul_candidates   -= tmp_same_row_candidates | tmp_same_falling_diagonal_candidates | tmp_same_raising_diagonal_candidates | other_candidates
         # 同一の対角線にある共通の候補だが、同一の対角線以外にも属しているものを排除する
-        same_falling_diagonal_candidates -= tmp_same_col_candidates | tmp_same_row_candidates | tmp_same_raising_diagonal_candidates | other_candidates
+        same_falling_diagonal_candidates -= tmp_same_cul_candidates | tmp_same_row_candidates | tmp_same_raising_diagonal_candidates | other_candidates
         # 同一の対角線にある共通の候補だが、同一の対角線以外にも属しているものを排除する
-        same_raising_diagonal_candidates -= tmp_same_col_candidates | tmp_same_row_candidates | tmp_same_falling_diagonal_candidates | other_candidates
+        same_raising_diagonal_candidates -= tmp_same_cul_candidates | tmp_same_row_candidates | tmp_same_falling_diagonal_candidates | other_candidates
         # 同一の行、同一の列双方に属する場合、直線状でない候補として保存する
-        other_candidates |= (tmp_same_row_candidates & tmp_same_col_candidates) |
+        other_candidates |= (tmp_same_row_candidates & tmp_same_cul_candidates) |
                             (tmp_same_row_candidates & tmp_same_falling_diagonal_candidates) |
-                            (tmp_same_col_candidates & tmp_same_falling_diagonal_candidates) |
+                            (tmp_same_cul_candidates & tmp_same_falling_diagonal_candidates) |
                             (tmp_same_row_candidates & tmp_same_raising_diagonal_candidates) |
-                            (tmp_same_col_candidates & tmp_same_raising_diagonal_candidates) |
+                            (tmp_same_cul_candidates & tmp_same_raising_diagonal_candidates) |
                             (tmp_same_falling_diagonal_candidates & tmp_same_raising_diagonal_candidates)
       end
       row_constraints = cells[i].row_constraints
-      col_constraints = cells[i].col_constraints
+      cul_constraints = cells[i].cul_constraints
       box_constraints = cells[i].box_constraints
       falling_diagonal_constraints = cells[i].falling_diagonal_constraints
       raising_diagonal_constraints = cells[i].raising_diagonal_constraints
@@ -232,15 +232,15 @@ class StandardSolver < Solver
           end
         end
       end
-      unless same_col_candidates==[]
+      unless same_cul_candidates==[]
         # cells[i]と同一の列に共通の候補がある場合
-        col_constraints.product(box_constraints).each do |constraints|
+        cul_constraints.product(box_constraints).each do |constraints|
           # cells[i]と同一の列及びボックスのうち空のマスを対象とする
           target_cells = (constraints.first.cells - constraints.last.cells) & cells
           target_cells.each do |cell|
             # 対象のマスの候補から直線状に並んだ候補を削除する
             prev_candidates = cell.candidates
-            after_candidates = cell.delete_candidates(same_col_candidates)
+            after_candidates = cell.delete_candidates(same_cul_candidates)
             result = true if prev_candidates!=after_candidates
           end
         end
@@ -330,53 +330,53 @@ class StandardSolver < Solver
     result
   end
 
-  def remove_locked_candidates_type2_col
+  def remove_locked_candidates_type2_cul
     # 同一領域(行または列)内である一つのボックスにのみある候補があれば同ボックス内の他のセルの候補を排除できる
     result = false
     cells = @board.get_empty_cells
     i = 0
     j = 0
     for i in 0...(cells.size-1) do
-      same_col_candidates = [] # 同一列に属する候補
-      other_col_candidates = [] # 同一列に属するがボックスが異なる候補
+      same_cul_candidates = [] # 同一列に属する候補
+      other_cul_candidates = [] # 同一列に属するがボックスが異なる候補
       for j in 0...cells.size do
         # i==jのとき同一のCellをチェックすることになるため無視する
         next if i==j
         # jのループ内でcells[i]と同一ボックス内にある他のマスをチェックする
         # cells[i]と同一のボックスにcells[j]が属していない場合無視する
         next unless cells[i].box_constraints.any? { |c| c.include?(cells[j]) }
-        if cells[i].col_constraints.any? { |c| c.include?(cells[j]) }
+        if cells[i].cul_constraints.any? { |c| c.include?(cells[j]) }
           # cells[i]と同じ列にcells[j]が属している場合の共通の候補を保存する
-          same_col_candidates |= cells[i].candidates & cells[j].candidates
+          same_cul_candidates |= cells[i].candidates & cells[j].candidates
         else
           # cells[i]と同じボックスにcells[j]が属しているが、行列ともに異なる場合無視する
           next
         end
         # 同一の列に属する候補が存在する場合、同一の行で異なるボックスに属するマスに共通の候補がある場合除外するために保存する
-        unless same_col_candidates == []
-          cells[i].col_constraints.each do |c|
+        unless same_cul_candidates == []
+          cells[i].cul_constraints.each do |c|
             c.cells.each do |cell|
               # 空のセルでなければ無視
               next unless cells.include?(cell)
               # 同一のボックスに含まれる場合は無視
               next unless cells[i].box_constraints.none? { |c| c.include?(cell) }
-              other_col_candidates |= cell.candidates
+              other_cul_candidates |= cell.candidates
             end
           end
         end
         # 演算用に一時保存する
-        tmp_same_col_candidates = same_col_candidates
+        tmp_same_cul_candidates = same_cul_candidates
         # 同一の列にある候補だが、異なるボックスにも存在する候補を排除する
-        same_col_candidates -= other_col_candidates
+        same_cul_candidates -= other_cul_candidates
       end
-      col_constraints = cells[i].col_constraints
+      cul_constraints = cells[i].cul_constraints
       box_constraints = cells[i].box_constraints
-      unless same_col_candidates==[]
-        box_constraints.product(col_constraints).each do |constraints|
+      unless same_cul_candidates==[]
+        box_constraints.product(cul_constraints).each do |constraints|
           target_cells = (constraints.first.cells - constraints.last.cells) & cells
           target_cells.each do |cell|
             prev_candidates = cell.candidates
-            after_candidates = cell.delete_candidates(same_col_candidates)
+            after_candidates = cell.delete_candidates(same_cul_candidates)
             puts "#####{__method__}:#{cell.x.to_s},#{cell.y.to_s} #{prev_candidates} => #{after_candidates}"
             result = true if prev_candidates != after_candidates
           end
