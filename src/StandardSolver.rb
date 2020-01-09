@@ -293,7 +293,6 @@ class StandardSolver < Solver
         # jのループ内でcells[i]と同一ボックス内にある他のマスをチェックする
         # cells[i]と同一のボックスにcells[j]が属していない場合無視する
         next unless cells[i].box_constraints.any? { |c| c.include?(cells[j]) }
-        puts "#####{__method__} [#{cells[i].x.to_s},#{cells[i].y.to_s}],[#{cells[j].x.to_s},#{cells[j].y.to_s}]"
         if cells[i].row_constraints.any? { |c| c.include?(cells[j]) }
           # cells[i]と同じ行にcells[j]が属している場合の共通の候補を保存する
           same_row_candidates |= cells[i].candidates & cells[j].candidates
