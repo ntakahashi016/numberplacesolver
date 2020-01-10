@@ -325,6 +325,7 @@ class StandardSolver < Solver
           # cells[i]と同一の行及び
           target_cells = (constraints.first.cells - constraints.last.cells) & cells
           target_cells.each do |cell|
+            next if same_row_candidates & cell.candidates == []
             prev_candidates = cell.candidates
             after_candidates = cell.delete_candidates(same_row_candidates)
             puts "#####{__method__}:#{cell.x.to_s},#{cell.y.to_s} #{prev_candidates} => #{after_candidates}"
@@ -382,6 +383,7 @@ class StandardSolver < Solver
         box_constraints.product(cul_constraints).each do |constraints|
           target_cells = (constraints.first.cells - constraints.last.cells) & cells
           target_cells.each do |cell|
+            next if same_cul_candidates & cell.candidates == []
             prev_candidates = cell.candidates
             after_candidates = cell.delete_candidates(same_cul_candidates)
             puts "#####{__method__}:#{cell.x.to_s},#{cell.y.to_s} #{prev_candidates} => #{after_candidates}"
