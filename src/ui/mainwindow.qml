@@ -392,6 +392,7 @@ ApplicationWindow {
 					}
 					RadioButton {
 						text: "Diagonal"
+                        enabled: false
 						exclusiveGroup: boardTypeGroup
 						onClicked: {
 							nps.select_board_factory("diagonal")
@@ -399,6 +400,7 @@ ApplicationWindow {
 					}
 					RadioButton {
 						text: "Union"
+                        enabled: false
 						exclusiveGroup: boardTypeGroup
 						onClicked: {
 							nps.select_board_factory("union")
