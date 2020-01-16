@@ -10,6 +10,7 @@ require './LockedCandidatesType1Strategy'
 require './LockedCandidatesType2RowStrategy'
 require './LockedCandidatesType2CulStrategy'
 require './HiddenSubsetsStrategy'
+require './NakedSubsetsStrategy'
 
 class StandardSolver < Solver
 
@@ -22,9 +23,12 @@ class StandardSolver < Solver
                    LockedCandidatesType1Strategy.new,
                    LockedCandidatesType2RowStrategy.new,
                    LockedCandidatesType2CulStrategy.new,
-                   HiddenSubsetsStrategy.new(2),
-                   HiddenSubsetsStrategy.new(3),
-                   HiddenSubsetsStrategy.new(4)]
+                   # HiddenSubsetsStrategy.new(2),
+                   # HiddenSubsetsStrategy.new(3),
+                   # HiddenSubsetsStrategy.new(4),
+                   NakedSubsetsStrategy.new(2),
+                   NakedSubsetsStrategy.new(3),
+                   NakedSubsetsStrategy.new(4)]
   end
 
   def solve()
