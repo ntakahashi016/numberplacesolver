@@ -16,57 +16,32 @@ class NakedSubsetsStrategy < Strategy
         cells_by_candidate[candidate] = (cells.select{|cell| cell.candidates.include?(candidate) })
       end
 
-      including_relation = cells_by_candidate.keys.combination(2).collect do |a,b|
-        if (cells_by_candidate[a] | cells_by_candidate[b]) - cells_by_candidate[a] == []
-          [a,b]
-        elsif (cells_by_candidate[b] | cells_by_candidate[a]) - cells_by_candidate[b] == []
-          [b,a]
-        else
-          nil
-        end
-      end
-
-      including_relation.compact!
-
-      including_relation_hash = {}
-      including_relation.each do |a,b|
-        including_relation_hash[a] = [] unless including_relation_hash[a]
-        including_relation_hash[a] << b
-      end
-
       naked_subset = {}
-      including_relation_hash.each do |a,bs|
-        tmp_subset = cells_by_candidate[a]
-        bs.each do |b|
-          tmp_subset &= cells_by_candidate[a] - cells_by_candidate[b]
+      cells_by_candidate.keys.combination(@n).each do |candidates|
+        cells_by_combination = []
+        candidates.each do |candidate|
+          cells_by_combination |= cells_by_candidate[candidate]
         end
-        next unless tmp_subset == []
-        naked_subset[a] = [] unless naked_subset[a]
-        naked_subset[a] << a
-        bs.each { |b| naked_subset[a] << b }
-      end
-      puts naked_subset.to_s
-      exclusive = []
-      naked_subset.each_key do |a|
-        if cells_by_candidate[a].size != @n || naked_subset[a].size != @n
-          exclusive << a
-        elsif cells_by_candidate[a].any? { |cell| cell.candidates - naked_subset[a] != [] }
-          exclusive << a
+        cells_naked_subset = cells_by_combination.select do |cell|
+          cell.candidates - candidates == []
         end
+        next unless cells_naked_subset.size == @n
+        naked_subset[candidates] = cells_naked_subset
       end
-      exclusive.each do |e|
-        naked_subset.delete(e)
-      end
-      # puts naked_subset.to_s
-      naked_subset.each_key do |a|
-        cells_by_candidate[a].each do |cell|
-          prev_candidates = cell.candidates
-          target = cell.candidates - naked_subset[a]
-          tmp = cell.candidates
-          next if target == []
-          after_candidates = cell.delete_candidates(target)
-          puts "#####{self.class.name}##{__method__}(#{@n}):#{cell.x.to_s},#{cell.y.to_s} #{prev_candidates} => #{after_candidates}"
-          result = true if prev_candidates != after_candidates
+
+      next if naked_subset == {}
+
+      naked_subset.each_key do |candidates|
+        candidates.each do |candidate|
+          target_cells = cells_by_candidate[candidate] - naked_subset[candidates]
+          target_cells.each do |cell|
+            prev_candidates = cell.candidates
+            target = candidates
+            next if target == []
+            after_candidates = cell.delete_candidates(target)
+            puts "#####{self.class.name}##{__method__}(#{@n}):#{cell.x.to_s},#{cell.y.to_s} #{prev_candidates} => #{after_candidates}"
+            result = true if prev_candidates != after_candidates
+          end
         end
       end
     end
