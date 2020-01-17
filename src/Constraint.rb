@@ -51,4 +51,11 @@ class Constraint
   def solved?
     @candidates == []
   end
+  def to_s
+    {cells: @cells, n_max: @n_max, candidates: @candidates}.to_s
+  end
+
+  def inspect
+    to_s
+  end
 end

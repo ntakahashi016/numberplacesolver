@@ -9,7 +9,6 @@ class StandardBoardFactory < Factory
   def generate(n)
     board       = Board.new(n)
     cells       = []
-    constraints = []
     box_size    = Integer.sqrt(n)
     unless box_size ** 2 == n
       raise "Class:#{self.class.name}##{__method__} 指定したサイズ(#{n})では盤面を生成できません。平方根が整数となる数値を使用してください"
@@ -24,6 +23,7 @@ class StandardBoardFactory < Factory
       end
     end
     # 横一列のConstraintにCellを登録
+    constraints = []
     for y in 0...n do
       constraint = Constraint.new(n)
       for x in  0...n do
@@ -32,7 +32,9 @@ class StandardBoardFactory < Factory
       end
       constraints.push(constraint)
     end
+    board.set_constraints(constraints,:row)
     # 縦一列のConstraintにCellを登録
+    constraints = []
     for x in 0...n do
       constraint = Constraint.new(n)
       for y in 0...n do
@@ -41,7 +43,9 @@ class StandardBoardFactory < Factory
       end
       constraints.push(constraint)
     end
+    board.set_constraints(constraints,:cul)
     # Box領域にCellを登録
+    constraints = []
     for i in 0...(n/box_size) do
       for j in 0...(n/box_size) do
         constraint = Constraint.new(n)
@@ -56,9 +60,8 @@ class StandardBoardFactory < Factory
         constraints.push(constraint)
       end
     end
-
+    board.set_constraints(constraints,:box)
     board.set_cells(cells)
-    board.set_constraints(constraints)
     board
   end
 end
