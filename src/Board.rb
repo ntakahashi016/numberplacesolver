@@ -51,11 +51,11 @@ class Board
     raise TypeError unless type.class == Symbol
     case type
     when :row
-      @row_constraints = constraints
+      constraints.each {|c| @row_constraints << c}
     when :cul
-      @cul_constraints = constraints
+      constraints.each {|c| @cul_constraints << c}
     when :box
-      @box_constraints = constraints
+      constraints.each {|c| @box_constraints << c}
     else
       raise
     end
@@ -161,8 +161,6 @@ class Board
   # solved?
   # 問題が解けているかどうか返す
   def solved?
-    puts @constraints.flatten.to_s
-    # @constraints.flatten.each {|c| puts c.solved?}
     @constraints.flatten.all? {|constraint| constraint.solved? }
   end
 end
