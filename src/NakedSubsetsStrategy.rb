@@ -16,15 +16,15 @@ class NakedSubsetsStrategy < Strategy
         cells_by_candidate[candidate] = (cells.select{|cell| cell.candidates.include?(candidate) })
       end
 
-      naked_subset = {}
+      naked_subset = {} # NakedSubsetが成立する候補の配列をキーとし、そのマスの配列を値とするハッシュ
       cells_by_candidate.keys.combination(@n).each do |candidates|
         cells_by_combination = []
         candidates.each do |candidate|
           cells_by_combination |= cells_by_candidate[candidate]
         end
-        cells_naked_subset = cells_by_combination.select do |cell|
-          cell.candidates - candidates == []
-        end
+        # 入りうる候補が現在の候補の組み合わせのみのマスを抽出する
+        cells_naked_subset = cells_by_combination.select { |cell| cell.candidates - candidates == [] }
+        # マスの数がN出ない場合NakedSubsetは成立しないためnextする
         next unless cells_naked_subset.size == @n
         naked_subset[candidates] = cells_naked_subset
       end
@@ -33,12 +33,12 @@ class NakedSubsetsStrategy < Strategy
 
       naked_subset.each_key do |candidates|
         candidates.each do |candidate|
+          # 対象のマスはその候補が入りうるマスのうちNakedSubsetのマスを除いたマス
           target_cells = cells_by_candidate[candidate] - naked_subset[candidates]
           target_cells.each do |cell|
             prev_candidates = cell.candidates
-            target = candidates
-            next if target == []
-            after_candidates = cell.delete_candidates(target)
+            # 除外する候補はNakedSubsetが成立する候補の集合
+            after_candidates = cell.delete_candidates(candidates)
             puts "#####{self.class.name}##{__method__}(#{@n}):#{cell.x.to_s},#{cell.y.to_s} #{prev_candidates} => #{after_candidates}"
             result = true if prev_candidates != after_candidates
           end
