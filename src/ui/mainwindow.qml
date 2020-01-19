@@ -488,6 +488,8 @@ ApplicationWindow {
         id: _MenuBar
         FileMenu {
         }
+        OptionMenu {
+        }
 	}
 
 	OpenWindow {
@@ -497,6 +499,10 @@ ApplicationWindow {
 	SaveAsWindow {
 		id: _SaveAsWindow
 	}
+
+    SettingWindow {
+        id: _SettingWindow
+    }
 
 	/* NumberPlaceSolverの実体をエレメント化 */
 	NumberPlaceSolver {
