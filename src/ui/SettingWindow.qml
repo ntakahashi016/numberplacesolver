@@ -8,8 +8,16 @@ Window {
     id: _window
     visible: false
     width: 500
-    height: 500
+    height: 600
     modality: Qt.ApplicationModal
+    signal saveButtonSignal(variant array)
+    function getSettings() {
+        var settingsHash = {}
+        for (var i=0; i<childGroup.buttons.length; i++) {
+            settingsHash[childGroup.buttons[i].text] = childGroup.buttons[i].checkState
+        }
+        return settingsHash
+    }
     ColumnLayout {
         Label {
             text: "Solving Strategies"
@@ -79,11 +87,19 @@ Window {
             leftPadding: indicator.width
             ButtonGroup.group: childGroup
         }
-        CeckBox {
+        CheckBox {
             id: backtrack
             text: "Backtrack"
             leftPadding: indicator.width
             ButtonGroup.group: childGroup
         }
+        Button {
+            id: saveButton
+            text: "Save"
+            onClicked: {
+                saveButtonSignal(getSettings())
+            }
+        }
     }
 }
+
