@@ -10,7 +10,7 @@ Window {
     width: 500
     height: 600
     modality: Qt.ApplicationModal
-    signal saveButtonSignal(variant array)
+    signal saveButtonSignal(variant qmlJsObj)
     function getSettings() {
         var settingsHash = {}
         for (var i=0; i<childGroup.buttons.length; i++) {
@@ -77,7 +77,7 @@ Window {
         }
         CheckBox {
             id: hiddenSubsets
-            text: "HiddenSubstes"
+            text: "HiddenSubsets"
             leftPadding: indicator.width
             ButtonGroup.group: childGroup
         }

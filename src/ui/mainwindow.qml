@@ -502,6 +502,9 @@ ApplicationWindow {
 
     SettingWindow {
         id: _SettingWindow
+		onSaveButtonSignal: {
+			nps.set_settings(qmlJsObj)
+		}
     }
 
 	/* NumberPlaceSolverの実体をエレメント化 */

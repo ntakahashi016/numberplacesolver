@@ -5,6 +5,15 @@ require './BoardFactory'
 require './BacktrackSolver'
 require './StandardSolver'
 require './TemplateSolver'
+require './LastDigitStrategy'
+require './FullHouseStrategy'
+require './NakedSingleStrategy'
+require './HiddenSingleStrategy'
+require './LockedCandidatesType1Strategy'
+require './LockedCandidatesType2RowStrategy'
+require './LockedCandidatesType2CulStrategy'
+require './HiddenSubsetsStrategy'
+require './NakedSubsetsStrategy'
 require 'benchmark'
 
 class NumberPlaceSolver
@@ -18,7 +27,7 @@ class NumberPlaceSolver
   property(:union_level) {1}
   property(:union_num) {1}
 
-  @@solvers = []
+  @@solver = StandardSolver.new
   @@board = nil
   @@factory = StandardBoardFactory.new
 
@@ -52,37 +61,19 @@ class NumberPlaceSolver
     nil
   end
 
-  def select_solver(solver_str)
-    case solver_str.to_sym
-    when :Standard
-      @@solvers = [StandardSolver]
-    when :Backtrack
-      @@solvers = [BacktrackSolver]
-    when :StandardAndBacktrack
-      @@solvers = [StandardSolver, BacktrackSolver]
-    when :Template
-      @@solvers = [TemplateSolver]
-    else
-      raise "不明なソルバーです"
-    end
-    nil
-  end
-
   # 問題を解く
   def solve
     puts "#{self.class.name}##{__method__} called."
     puts @@board
+    @@solver.set_board(@@board)
     result_time = Benchmark.realtime do
-      @@solvers.each do |solver|
-        s = solver.new(@@board)
-        puts "#### #{s.class.name}で問題を解きます"
-        begin
-          s.solve
-        rescue => e
-          puts "#### #{s.class.name}では問題を解けませんでした"
-          puts e.message
-          next
-        end
+      puts "#### #{@@solver.class.name}で問題を解きます"
+      begin
+        @@solver.solve
+      rescue => e
+        puts "#### #{@@solver.class.name}では問題を解けませんでした"
+        puts e.message
+        next
       end
     end
     puts "## 処理時間:#{result_time}s"
@@ -159,6 +150,20 @@ class NumberPlaceSolver
       return []
     end
     csv_data.flatten
+  end
+
+  def set_settings(qml_js_obj)
+    qml_js_obj.to_hash.to_a.reverse.to_h.each do |k,v|
+      if v == 2.0
+        if k == "HiddenSubsets" || k == "NakedSubsets"
+          for i in 2..4
+            @@solver.add_strategy(Object.const_get(k+'Strategy').new(i))
+          end
+        else
+          @@solver.add_strategy(Object.const_get(k+'Strategy').new)
+        end
+      end
+    end
   end
 end
 
