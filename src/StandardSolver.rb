@@ -6,14 +6,15 @@ require './Strategy'
 class StandardSolver < Solver
 
   def initialize
-    @strategies = []
+    @strategies = {}
   end
 
   def solve()
     i = 0
     until @board.solved?
       raise "問題を解けませんでした" if i >= @strategies.size
-      changed = @strategies[i].solve(@board)
+      names = @strategies.keys
+      changed = @strategies[names[i]].solve(@board)
       if changed
         i = 0
       else
@@ -22,8 +23,15 @@ class StandardSolver < Solver
     end
   end
 
-  def add_strategy(strategy)
+  def add_strategy(name,strategy)
+    raise TypeError unless String === name
     raise TypeError unless Strategy === strategy
-    @strategies.push(strategy)
+    @strategies[name] = strategy
+  end
+
+  def del_strategy(name,strategy)
+    raise TypeError unless String === name
+    raise TypeError unless Strategy === strategy
+    @strategies.delete(name)
   end
 end

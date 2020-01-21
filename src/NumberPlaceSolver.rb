@@ -153,13 +153,21 @@ class NumberPlaceSolver
 
   def set_settings(qml_js_obj)
     qml_js_obj.to_hash.to_a.reverse.to_h.each do |k,v|
-      if v == 2.0
+      if v == 2.0 # 2.0はQML::CheckBoxのcheckStateが取るQt.Checkedの値＝チェックされている
         if k == "HiddenSubsets" || k == "NakedSubsets"
           for i in 2..4
-            @@solver.add_strategy(Object.const_get(k+'Strategy').new(i))
+            @@solver.add_strategy(k,Object.const_get(k+'Strategy').new(i))
           end
         else
-          @@solver.add_strategy(Object.const_get(k+'Strategy').new)
+          @@solver.add_strategy(k,Object.const_get(k+'Strategy').new)
+        end
+      else
+        if k == "HiddenSubsets" || k == "NakedSubsets"
+          for i in 2..4
+            @@solver.del_strategy(k,Object.const_get(k+'Strategy').new(i))
+          end
+        else
+          @@solver.del_strategy(k,Object.const_get(k+'Strategy').new)
         end
       end
     end
