@@ -14,6 +14,7 @@ require './LockedCandidatesType2RowStrategy'
 require './LockedCandidatesType2CulStrategy'
 require './HiddenSubsetsStrategy'
 require './NakedSubsetsStrategy'
+require './BacktrackStrategy'
 require 'benchmark'
 
 class NumberPlaceSolver
@@ -73,7 +74,6 @@ class NumberPlaceSolver
       rescue => e
         puts "#### #{@@solver.class.name}では問題を解けませんでした"
         puts e.message
-        next
       end
     end
     puts "## 処理時間:#{result_time}s"

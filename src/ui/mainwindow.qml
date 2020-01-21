@@ -442,20 +442,6 @@ ApplicationWindow {
 					}
 				}
 			}
-			RowLayout {
-				Text { text: "Solver" }
-				ComboBox {
-					id: _SolverComboBox
-					model: ListModel {
-						id: _Solver
-						ListElement { text: "StandardAndBacktrack" }
-						ListElement { text: "Standard" }
-						ListElement { text: "Backtrack" }
-                        ListElement { text: "Template" }
-					}
-					onCurrentIndexChanged: nps.select_solver(_Solver.get(currentIndex).text)
-				}
-			}
 		}
 		GridLayout {
 			id: _FrameGrid

@@ -1,21 +1,16 @@
 # coding: utf-8
 
-require './Solver'
+require './Strategy'
 
-class BacktrackSolver < Solver
-
-  def initialize(board)
-    super(board)
-  end
-
-  def solve()
+class BacktrackStrategy < Strategy
+  def solve(board)
     i      = 0  # 対象の空のセルの番号
     stack  = [] # 実行した動作のスタック、内容はハッシュにする
     resume = 0  # 数字が入らなかった場合に前のセルに復帰する際の数字
 
     # cellsは空のセルの配列
-    cells = @board.get_empty_cells
-    until @board.solved?
+    cells = board.get_empty_cells
+    until board.solved?
       # 復帰処理でない場合、resumeは0のため候補配列の先頭から実行する
       # 復帰処理の場合、resumeより大きい候補から実行する
       # ただし、すべての候補を試行していた場合、nil
@@ -30,8 +25,8 @@ class BacktrackSolver < Solver
           raise "ERROR 解が見つかりませんでした。"
         end
         # 前の処理を取り消す=数字としてnilを設定する
-        @board.set_number(prev[:x], prev[:y], nil)
-        @board.update_candidates
+        board.set_number(prev[:x], prev[:y], nil)
+        board.update_candidates
         # resumeに前回試行した数字を保存しておく
         resume = prev[:n]
         i -= 1
@@ -40,8 +35,8 @@ class BacktrackSolver < Solver
       # 実行する処理をスタックに保存する
       stack.push({x: cells[i].x, y: cells[i].y, n: number})
       # 数字を設定する
-      @board.set_number(cells[i].x, cells[i].y, number)
-      @board.update_candidates
+      board.set_number(cells[i].x, cells[i].y, number)
+      board.update_candidates
       # 復帰でないためresumeの値を初期化しておく
       resume = 0
       i += 1
