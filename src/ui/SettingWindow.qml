@@ -107,5 +107,6 @@ Window {
             }
         }
     }
+    Component.onCompleted: saveButtonSignal(getSettings())
 }
 
