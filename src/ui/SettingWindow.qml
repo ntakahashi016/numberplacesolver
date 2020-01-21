@@ -88,6 +88,12 @@ Window {
             ButtonGroup.group: childGroup
         }
         CheckBox {
+            id: template
+            text: "Template"
+            leftPadding: indicator.width
+            ButtonGroup.group: childGroup
+        }
+        CheckBox {
             id: backtrack
             text: "Backtrack"
             leftPadding: indicator.width

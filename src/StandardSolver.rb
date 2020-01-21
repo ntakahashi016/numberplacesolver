@@ -12,7 +12,7 @@ class StandardSolver < Solver
   def solve()
     i = 0
     until @board.solved?
-      raise "問題を解けませんでした" if i > @strategies.size
+      raise "問題を解けませんでした" if i >= @strategies.size
       changed = @strategies[i].solve(@board)
       if changed
         i = 0
