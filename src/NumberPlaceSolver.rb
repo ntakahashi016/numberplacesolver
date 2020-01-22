@@ -1,7 +1,7 @@
 # coding: utf-8
 require 'qml'
 require 'csv'
-require './BoardFactory'
+require './StandardBoardFactory'
 require './StandardSolver'
 require './LastDigitStrategy'
 require './FullHouseStrategy'
@@ -24,8 +24,6 @@ class NumberPlaceSolver
   property(:num_of_cells) {self.board_x**2}
   property(:num_type) {9}
   property(:panel_x) {Integer.sqrt(self.num_type)}
-  property(:union_level) {1}
-  property(:union_num) {1}
 
   @@solver = StandardSolver.new
   @@board = nil
@@ -34,10 +32,8 @@ class NumberPlaceSolver
   # mainwindow.qmlからセルの配列を受け取る
   def set_cellarray(cellarray)
     case @@factory
-    when StandardBoardFactory,DiagonalBoardFactory
+    when StandardBoardFactory
       @@board = @@factory.generate(self.num_type)
-    when UnionBoardFactory
-      @@board = @@factory.generate(self.num_type, self.union_level, self.union_num)
     end
     # Boardが受付可能な形式にセルの配列を変換する
     numbers = gen_numbers(cellarray)
@@ -51,10 +47,6 @@ class NumberPlaceSolver
     case str_option.to_sym
     when :standard
       @@factory = StandardBoardFactory.new
-    when :diagonal
-      @@factory = DiagonalBoardFactory.new
-    when :union
-      @@factory = UnionBoardFactory.new
     else
       raise "不明なボード種別です"
     end
@@ -97,31 +89,17 @@ class NumberPlaceSolver
         cell.to_i
       end
     }
-    cellarray = cellarray.each_slice(self.num_type + (self.num_type - Integer.sqrt(self.num_type) * self.union_level) * (self.union_num - 1)).to_a
+    cellarray = cellarray.each_slice(self.num_type).to_a
   end
 
   # 対象の問題の種類を設定する
   def setBoardType(n)
     n = n.to_i
     # GUI描画に影響するため計算順序に注意
-    self.num_of_cells = (n + (n - Integer.sqrt(n) * self.union_level) * (self.union_num - 1))**2
-    self.board_x      = n + (n - Integer.sqrt(n) * self.union_level) * (self.union_num - 1)
+    self.num_of_cells = n**2
+    self.board_x      = n
     self.num_type     = n
     self.panel_x      = Integer.sqrt(n)
-  end
-
-  def set_union_level(level_str)
-    # GUI描画に影響するため計算順序に注意
-    self.union_level = level_str.to_i
-    self.num_of_cells = (self.num_type + (self.num_type - Integer.sqrt(self.num_type) * self.union_level) * (self.union_num - 1))**2
-    self.board_x      = self.num_type + (self.num_type - Integer.sqrt(self.num_type) * self.union_level) * (self.union_num - 1)
-  end
-
-  def set_union_num(num_str)
-    # GUI描画に影響するため計算順序に注意
-    self.union_num = num_str.to_i
-    self.num_of_cells = (self.num_type + (self.num_type - Integer.sqrt(self.num_type) * self.union_level) * (self.union_num - 1))**2
-    self.board_x      = self.num_type + (self.num_type - Integer.sqrt(self.num_type) * self.union_level) * (self.union_num - 1)
   end
 
   def save_as(path, cell_array)
