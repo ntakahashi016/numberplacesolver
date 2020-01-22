@@ -1,6 +1,7 @@
 # coding: utf-8
 
 require './Strategy'
+require './Board'
 
 class Solver
 
