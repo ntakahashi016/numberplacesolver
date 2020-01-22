@@ -92,6 +92,7 @@ Window {
             text: "Template"
             leftPadding: indicator.width
             ButtonGroup.group: childGroup
+            checkd: false
         }
         CheckBox {
             id: backtrack
