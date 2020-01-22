@@ -2,7 +2,7 @@
 require 'qml'
 require 'csv'
 require './StandardBoardFactory'
-require './StandardSolver'
+require './Solver'
 require './LastDigitStrategy'
 require './FullHouseStrategy'
 require './NakedSingleStrategy'
@@ -25,7 +25,7 @@ class NumberPlaceSolver
   property(:num_type) {9}
   property(:panel_x) {Integer.sqrt(self.num_type)}
 
-  @@solver = StandardSolver.new
+  @@solver = Solver.new
   @@board = nil
   @@factory = StandardBoardFactory.new
 
