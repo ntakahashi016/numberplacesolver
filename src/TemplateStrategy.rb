@@ -7,7 +7,11 @@ class TemplateStrategy < Strategy
   def solve(board)
     until board.solved?
       prev = board.get_numbers
-      base = generate_base(board)
+      begin
+        base = generate_base(board)
+      rescue
+        break
+      end
       template = generate_template(board,base)
       template = fix_overlapped_same_numbers(board,template)
       template = delete_overlapped_differnt_numbers(board,template)
@@ -26,6 +30,7 @@ class TemplateStrategy < Strategy
       base[i] = Array.new
     end
     cells = board.get_cells - board.get_empty_cells
+    raise if cells == []
     cells.each do |cell|
       base[cell.n].push({x: cell.x, y: cell.y})
     end
