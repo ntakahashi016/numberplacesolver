@@ -164,19 +164,7 @@ ApplicationWindow {
 						id: _bg
 						anchors.fill: parent
 						border.width: 0
-						color: {
-							var y = Math.floor(index/nps.board_x)
-							var x = index%nps.board_x
-							var n = nps.num_type
-							var box_size = Math.floor(Math.sqrt(nps.num_type))
-							var union_level = nps.union_level
-							if (y < (n+(n-box_size*union_level)*Math.floor(x/(n-box_size*union_level))) &&
-								x < (n+(n-box_size*union_level)*Math.floor(y/(n-box_size*union_level)))) {
-								"#FFFFFF";
-							}else{
-								"#888888";
-							}
-						}
+						color: "#FFFFFF"
 						Text{
 							id: _label
 							anchors.centerIn: parent
@@ -378,70 +366,6 @@ ApplicationWindow {
 					}
 				}
 			}
-			GroupBox {
-				title: "Board type"
-				RowLayout {
-					ExclusiveGroup { id: boardTypeGroup }
-					RadioButton {
-						text: "Standard"
-						checked: true
-						exclusiveGroup: boardTypeGroup
-						onClicked: {
-							nps.select_board_factory("standard")
-						}
-					}
-					RadioButton {
-						text: "Diagonal"
-                        enabled: false
-						exclusiveGroup: boardTypeGroup
-						onClicked: {
-							nps.select_board_factory("diagonal")
-						}
-					}
-					RadioButton {
-						text: "Union"
-                        enabled: false
-						exclusiveGroup: boardTypeGroup
-						onClicked: {
-							nps.select_board_factory("union")
-						}
-					}
-				}
-			}
-			GroupBox {
-				title: "UnionBoard options"
-                enabled: {
-                    if (boardTypeGroup.current.text == "Union") {
-                        true;
-                    } else {
-                        false;
-                    }
-                }
-				RowLayout {
-					Label { text: "Level" }
-					ComboBox {
-						id: _unionLevelComboBox
-						model: ListModel {
-							id: _unionLevel
-							ListElement { text: "1" }
-							ListElement { text: "2" }
-							ListElement { text: "3" }
-						}
-						onCurrentIndexChanged: nps.set_union_level(_unionLevel.get(currentIndex).text)
-					}
-					Label { text: "Num"}
-					ComboBox {
-						id: _unionBoardNumComboBox
-						model: ListModel {
-							id: _unionBoardNum
-							ListElement { text: "1" }
-							ListElement { text: "2" }
-							ListElement { text: "3" }
-						}
-						onCurrentIndexChanged: nps.set_union_num(_unionBoardNum.get(currentIndex).text)
-					}
-				}
-			}
 		}
 		GridLayout {
 			id: _FrameGrid
@@ -449,10 +373,8 @@ ApplicationWindow {
 			anchors.topMargin: -frameWidth
 			anchors.left: _CellAreasGrid.left
 			anchors.leftMargin: -frameWidth
-			property int ulevel : Number(_unionLevel.get(_unionLevelComboBox.currentIndex).text)
-			property int ubnum  : Number(_unionBoardNum.get(_unionBoardNumComboBox.currentIndex).text)
 			property int sqrtFrameNum: Math.sqrt(nps.num_type)
-			columns: sqrtFrameNum + (sqrtFrameNum - ulevel) * (ubnum - 1)
+			columns: sqrtFrameNum
 			columnSpacing: -frameWidth
 			rowSpacing: -frameWidth
 			Repeater {
