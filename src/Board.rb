@@ -8,7 +8,10 @@ class Board
 
   def initialize(n_max)
     @cells       = []     # セルの集合、二次元の配列で盤面と対応させる
-    @constraints = []     # 制約の集合
+    @row_constraints = []
+    @cul_constraints = []
+    @box_constraints = []
+    @constraints = [@row_constraints, @cul_constraints, @box_constraints]
     @x_size      = 0      # 横方向のセルの数
     @y_size      = 0      # 縦方向のせるの数
     @n_min       = 1      # 使用する数字の最小値
@@ -42,18 +45,28 @@ class Board
     cells.flatten.compact
   end
 
-  def set_constraints(constraints)
+  def set_constraints(constraints, type=:extra)
     raise TypeError unless constraints.class == Array
     raise TypeError unless constraints.all? { |c| c.class==Constraint }
-    @constraints = constraints
+    raise TypeError unless type.class == Symbol
+    case type
+    when :row
+      constraints.each {|c| @row_constraints << c}
+    when :cul
+      constraints.each {|c| @cul_constraints << c}
+    when :box
+      constraints.each {|c| @box_constraints << c}
+    else
+      raise
+    end
   end
 
   def get_constraints
-    @constraints
+    @constraints.flatten
   end
 
   def get_unsolved_constraints
-    @constraints.select{|c| !c.solved? }
+    @constraints.flatten.select{|c| !c.solved? }
   end
 
   # set_number
@@ -148,6 +161,6 @@ class Board
   # solved?
   # 問題が解けているかどうか返す
   def solved?
-    @constraints.all? {|constraint| constraint.solved? }
+    @constraints.flatten.all? {|constraint| constraint.solved? }
   end
 end
